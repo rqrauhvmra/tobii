@@ -1125,17 +1125,17 @@ export default function Tobii (userOptions) {
       const curDiff = Math.abs(pointerDownCache[0].clientX - pointerDownCache[1].clientX)
 
       if (prevDiff > 0) {
-        const zoom = parseInt(event.target.style.zoom)
+        let zoom = parseInt(event.target.style.zoom)
         if (curDiff > prevDiff) {
           // The distance between the two pointers has increased
           if (zoom < 500) {
-            event.target.style.zoom = ++zoom + "%"
+            event.target.style.zoom = ++zoom + '%'
           }
         }
         if (curDiff < prevDiff) {
           // The distance between the two pointers has decreased
           if (zoom > 100) {
-            event.target.style.zoom = --zoom + "%"
+            event.target.style.zoom = --zoom + '%'
           }
         }
       }

@@ -64,6 +64,8 @@ export default function Tobii (userOptions) {
   let groups = {}
   let newGroup = null
   let activeGroup = null
+  const pointerDownCache = []
+  let prevDiff = -1
 
   /**
    * Merge default options with user options
@@ -100,6 +102,7 @@ export default function Tobii (userOptions) {
       keyboard: true,
       zoom: true,
       zoomText: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
+      pinchZoom: true,
       docClose: true,
       swipeClose: true,
       hideScrollbar: true,
@@ -1087,6 +1090,79 @@ export default function Tobii (userOptions) {
   }
 
   /**
+   * Pointerdown event handler
+   *
+   */
+  const pointerdownHandler = (event) => {
+    // The pointerdown event signals the start of a touch interaction.
+    // This event is cached to support 2-finger gestures
+    pointerDownCache.push(event)
+  }
+
+  /**
+   * Pointermove event handler
+   *
+   */
+  const pointermoveHandler = (event) => {
+    // This function implements a 2-pointer horizontal pinch/zoom gesture.
+    //
+    // If the distance between the two pointers has increased (zoom in),
+    // the target element's background is changed to "pink" and if the
+    // distance is decreasing (zoom out), the color is changed to "lightblue".
+    //
+    // This function sets the target element's border to "dashed" to visually
+    // indicate the pointer's target received a move event.
+
+    // Find this event in the cache and update its record with this event
+    const index = pointerDownCache.findIndex(
+      (cachedEv) => cachedEv.pointerId === event.pointerId
+    )
+    pointerDownCache[index] = event
+
+    // If two pointers are down, check for pinch gestures
+    if (pointerDownCache.length === 2) {
+      // Calculate the distance between the two pointers
+      const curDiff = Math.abs(pointerDownCache[0].clientX - pointerDownCache[1].clientX)
+
+      if (prevDiff > 0) {
+        const zoom = parseInt(event.target.style.zoom)
+        if (curDiff > prevDiff) {
+          // The distance between the two pointers has increased
+          if (zoom < 500) {
+            event.target.style.zoom = ++zoom + "%"
+          }
+        }
+        if (curDiff < prevDiff) {
+          // The distance between the two pointers has decreased
+          if (zoom > 100) {
+            event.target.style.zoom = --zoom + "%"
+          }
+        }
+      }
+
+      // Cache the distance for the next move event
+      prevDiff = curDiff
+    }
+  }
+
+  /**
+   * Pointerup event handler
+   *
+   */
+  const pointerupHandler = (event) => {
+    // Remove this event from the target's cache
+    const index = pointerDownCache.findIndex(
+      (cachedEv) => cachedEv.pointerId === event.pointerId
+    )
+    pointerDownCache.splice(index, 1)
+
+    // If the number of pointers down is less than two then reset diff tracker
+    if (pointerDownCache.length < 2) {
+      prevDiff = -1
+    }
+  }
+
+  /**
    * Decide whether to do horizontal of vertical swipe
    *
    */
@@ -1138,6 +1214,16 @@ export default function Tobii (userOptions) {
       lightbox.addEventListener('mousemove', mousemoveHandler)
       lightbox.addEventListener('contextmenu', contextmenuHandler)
     }
+
+    if (userSettings.pinchZoom && isTouchDevice()) {
+      // Pointer events
+      lightbox.addEventListener('pointerdown', pointerdownHandler)
+      lightbox.addEventListener('pointermove', pointermoveHandler)
+      lightbox.addEventListener('pointerup', pointerupHandler)
+      lightbox.addEventListener('pointercancel', pointerupHandler)
+      lightbox.addEventListener('pointerout', pointerupHandler)
+      lightbox.addEventListener('pointerleave', pointerupHandler)
+    }
   }
 
   /**
@@ -1169,6 +1255,16 @@ export default function Tobii (userOptions) {
       lightbox.removeEventListener('mouseup', mouseupHandler)
       lightbox.removeEventListener('mousemove', mousemoveHandler)
       lightbox.removeEventListener('contextmenu', contextmenuHandler)
+    }
+
+    if (userSettings.pinchZoom && isTouchDevice()) {
+      // Pointer events
+      lightbox.removeEventListener('pointerdown', pointerdownHandler)
+      lightbox.removeEventListener('pointermove', pointermoveHandler)
+      lightbox.removeEventListener('pointerup', pointerupHandler)
+      lightbox.removeEventListener('pointercancel', pointerupHandler)
+      lightbox.removeEventListener('pointerout', pointerupHandler)
+      lightbox.removeEventListener('pointerleave', pointerupHandler)
     }
   }
 

@@ -276,6 +276,7 @@ The following options are available:
 | keyboard | bool | true | Allow keyboard navigation. |
 | zoom | bool | true | Display zoom icon. |
 | zoomText | string | "inline svg" | Text or HTML for the zoom icon. |
+| pinchZoom | bool | true | Pinch zoom gesture on touch devices. |
 | docClose | bool | true | Click outside to close Tobii. |
 | swipeClose | bool | true | Swipe up to close Tobii. |
 | draggable | bool | true | Use dragging and touch swiping. |

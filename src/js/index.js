@@ -64,8 +64,25 @@ export default function Tobii (userOptions) {
   let groups = {}
   let newGroup = null
   let activeGroup = null
-  const pointerDownCache = []
-  let prevDiff = -1
+  let pointerDownCache = []
+  const MIN_SCALE = 1
+  const MAX_SCALE = 4
+  const DOUBLE_TAP_TIME = 500 // milliseconds
+  const SCALE_SENSITIVITY = 10
+  const transform = {
+    element: null,
+    originX: 0,
+    originY: 0,
+    translateX: 0,
+    translateY: 0,
+    scale: MIN_SCALE
+  }
+  const start = {
+    x: 0,
+    y: 0,
+    distance: 0
+  }
+  let lastTapTime = 0
 
   /**
    * Merge default options with user options
@@ -750,6 +767,8 @@ export default function Tobii (userOptions) {
     const model = getModel(CONTAINER)
 
     model.onCleanup(CONTAINER)
+
+    if (transform.scale !== MIN_SCALE) resetZoom()
   }
 
   /**
@@ -824,7 +843,7 @@ export default function Tobii (userOptions) {
   }
 
   /**
-   * Clear drag after touchend and mousup event
+   * Clear drag after touchend and mouseup event
    *
    */
   const clearDrag = () => {
@@ -966,8 +985,8 @@ export default function Tobii (userOptions) {
    *
    */
   const touchstartHandler = (event) => {
-    // Prevent dragging / swiping on textareas inputs and selects
-    if (isIgnoreElement(event.target)) {
+    // Prevent dragging / swiping on textareas, inputs and selects or if scaled
+    if (isIgnoreElement(event.target) || transform.scale !== MIN_SCALE) {
       return
     }
 
@@ -1024,8 +1043,8 @@ export default function Tobii (userOptions) {
    *
    */
   const mousedownHandler = (event) => {
-    // Prevent dragging / swiping on textareas inputs and selects
-    if (isIgnoreElement(event.target)) {
+    // Prevent dragging / swiping on textareas, inputs and selects or if scaled
+    if (isIgnoreElement(event.target) || transform.scale !== MIN_SCALE) {
       return
     }
 
@@ -1094,9 +1113,25 @@ export default function Tobii (userOptions) {
    *
    */
   const pointerdownHandler = (event) => {
-    // The pointerdown event signals the start of a touch interaction.
     // This event is cached to support 2-finger gestures
     pointerDownCache.push(event)
+
+    // Allow mouse drag when scaled
+    if (transform.scale !== MIN_SCALE) event.preventDefault()
+
+    if (pointerDownCache.length === 2) {
+      const { x, y } = getMidPoint()
+
+      start.x = x
+      start.y = y
+      start.distance = getPinchDistance() / transform.scale
+
+      return
+    }
+
+    start.x = event.pageX
+    start.y = event.pageY
+    start.distance = 0
   }
 
   /**
@@ -1104,14 +1139,7 @@ export default function Tobii (userOptions) {
    *
    */
   const pointermoveHandler = (event) => {
-    // This function implements a 2-pointer horizontal pinch/zoom gesture.
-    //
-    // If the distance between the two pointers has increased (zoom in),
-    // the target element's background is changed to "pink" and if the
-    // distance is decreasing (zoom out), the color is changed to "lightblue".
-    //
-    // This function sets the target element's border to "dashed" to visually
-    // indicate the pointer's target received a move event.
+    if (!pointerDownCache.length) return
 
     // Find this event in the cache and update its record with this event
     const index = pointerDownCache.findIndex(
@@ -1119,30 +1147,125 @@ export default function Tobii (userOptions) {
     )
     pointerDownCache[index] = event
 
-    // If two pointers are down, check for pinch gestures
     if (pointerDownCache.length === 2) {
-      // Calculate the distance between the two pointers
-      const curDiff = Math.abs(pointerDownCache[0].clientX - pointerDownCache[1].clientX)
+      // 2-pointer horizontal pinch/zoom gesture
+      const { x, y } = getMidPoint()
+      const scale = getPinchDistance() / start.distance
 
-      if (prevDiff > 0) {
-        let zoom = parseInt(event.target.style.zoom)
-        if (curDiff > prevDiff) {
-          // The distance between the two pointers has increased
-          if (zoom < 500) {
-            event.target.style.zoom = ++zoom + '%'
-          }
-        }
-        if (curDiff < prevDiff) {
-          // The distance between the two pointers has decreased
-          if (zoom > 100) {
-            event.target.style.zoom = --zoom + '%'
-          }
-        }
-      }
+      zoomPan(
+        clamp(scale, MIN_SCALE, MAX_SCALE),
+        x, y,
+        x - start.x, y - start.y
+      )
 
-      // Cache the distance for the next move event
-      prevDiff = curDiff
+      start.x = x
+      start.y = y
+
+      return
     }
+    
+    if (transform.scale === MIN_SCALE) {
+      // Clear cache because pointerup event could not be fired eventually
+      pointerDownCache = []
+      return
+    }
+    const deltaX = event.pageX - start.x
+    const deltaY = event.pageY - start.y
+
+    pan(transform, deltaX, deltaY)
+
+    start.x = event.pageX
+    start.y = event.pageY
+  }
+
+  const clampedTranslate = (axis, translate, state) => {
+    // Whole clamping functionality heavily inspired
+    // by https://github.com/Neophen/pinch-zoom-pan
+    const { element, scale, originX, originY } = state
+    const axisIsX = axis === 'x'
+    const origin = axisIsX ? originX : originY
+    const axisKey = axisIsX ? 'offsetWidth' : 'offsetHeight'
+
+    const containerSize = element.parentNode[axisKey]
+    const imageSize = element[axisKey]
+    const bounds = element.getBoundingClientRect()
+
+    const imageScaledSize = axisIsX ? bounds.width : bounds.height
+
+    const defaultOrigin = imageSize / 2
+    const originOffset = (origin - defaultOrigin) * (scale - 1)
+
+    const range = Math.max(0, Math.round(imageScaledSize) - containerSize)
+
+    const max = Math.round(range / 2)
+    const min = 0 - max
+
+    return clamp(translate, min + originOffset, max + originOffset)
+  }
+
+  const clamp = (value, min, max) => Math.max(Math.min(value, max), min)
+
+  const renderTransform = (element, originX, originY, translateX, translateY, scale) => {
+    window.requestAnimationFrame(() => {
+      element.style.transformOrigin = `${originX}px ${originY}px`
+      element.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`
+    })
+  }
+  
+  const pan = (state, deltaX, deltaY) => {
+    if (deltaX !== 0) {
+      transform.translateX = clampedTranslate('x', state.translateX + deltaX, state)
+    }
+    if (deltaY !== 0) {
+      transform.translateY = clampedTranslate('y', state.translateY + deltaY, state)
+    }
+
+    const { element, originX, originY, scale } = state
+    renderTransform(element, originX, originY, transform.translateX, transform.translateY, scale)
+  }
+
+  const zoomPan = (newScale, x, y, deltaX, deltaY) => {
+    if (!transform.element) {
+      transform.element = lightbox.querySelector('.tobii__slide--is-active img')
+    }
+    const { left, top } = transform.element.getBoundingClientRect()
+    const originX = x - left
+    const originY = y - top
+    const newOriginX = originX / transform.scale
+    const newOriginY = originY / transform.scale
+
+    transform.originX = newOriginX
+    transform.originY = newOriginY
+    transform.scale = newScale
+
+    pan(transform, deltaX, deltaY)
+  }
+
+  const getPinchDistance = () => Math.hypot(
+    pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
+  )
+
+  const getMidPoint = () => ({
+    x: (pointerDownCache[0].pageX + pointerDownCache[1].pageX) / 2,
+    y: (pointerDownCache[0].pageY + pointerDownCache[1].pageY) / 2
+  })
+
+  const resetZoom = () => {
+    transform.scale = MIN_SCALE
+    transform.originX = 0
+    transform.originY = 0
+    transform.translateX = 0
+    transform.translateY = 0
+
+    lastTapTime = 0
+
+    start.x = 0
+    start.y = 0
+    start.distance = 0
+
+    pan(transform, 0, 0)
+
+    transform.element = null
   }
 
   /**
@@ -1156,10 +1279,36 @@ export default function Tobii (userOptions) {
     )
     pointerDownCache.splice(index, 1)
 
-    // If the number of pointers down is less than two then reset diff tracker
-    if (pointerDownCache.length < 2) {
-      prevDiff = -1
+    const currentTime = new Date().getTime()
+    const tapLength = currentTime - lastTapTime
+
+    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
+      event.preventDefault()
+      if (transform.scale === MIN_SCALE) {
+        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
+      } else {
+        resetZoom()
+      }
     }
+
+    lastTapTime = currentTime
+  }
+
+  /**
+   * Wheel event handler
+   *
+   */
+  const wheelHandler = (event) => {
+    const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1
+    if (transform.scale === MIN_SCALE && !deltaScale) return
+    event.preventDefault()
+
+    const newScale = transform.scale + deltaScale / (SCALE_SENSITIVITY / transform.scale)
+    zoomPan(
+      clamp(newScale, MIN_SCALE, MAX_SCALE),  
+      event.pageX, event.pageY,
+      0, 0
+    )
   }
 
   /**
@@ -1215,14 +1364,12 @@ export default function Tobii (userOptions) {
       lightbox.addEventListener('contextmenu', contextmenuHandler)
     }
 
-    if (userSettings.pinchZoom && isTouchDevice()) {
+    if (userSettings.pinchZoom) {
       // Pointer events
       lightbox.addEventListener('pointerdown', pointerdownHandler)
       lightbox.addEventListener('pointermove', pointermoveHandler)
       lightbox.addEventListener('pointerup', pointerupHandler)
-      lightbox.addEventListener('pointercancel', pointerupHandler)
-      lightbox.addEventListener('pointerout', pointerupHandler)
-      lightbox.addEventListener('pointerleave', pointerupHandler)
+      lightbox.addEventListener('wheel', wheelHandler)
     }
   }
 
@@ -1257,14 +1404,12 @@ export default function Tobii (userOptions) {
       lightbox.removeEventListener('contextmenu', contextmenuHandler)
     }
 
-    if (userSettings.pinchZoom && isTouchDevice()) {
+    if (userSettings.pinchZoom) {
       // Pointer events
       lightbox.removeEventListener('pointerdown', pointerdownHandler)
       lightbox.removeEventListener('pointermove', pointermoveHandler)
       lightbox.removeEventListener('pointerup', pointerupHandler)
-      lightbox.removeEventListener('pointercancel', pointerupHandler)
-      lightbox.removeEventListener('pointerout', pointerupHandler)
-      lightbox.removeEventListener('pointerleave', pointerupHandler)
+      lightbox.removeEventListener('wheel', wheelHandler)
     }
   }
 

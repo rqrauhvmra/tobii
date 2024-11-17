@@ -768,7 +768,7 @@ export default function Tobii (userOptions) {
 
     model.onCleanup(CONTAINER)
 
-    if (TRANSFORM.scale !== MIN_SCALE) resetZoom()
+    if (isZoomed()) resetZoom()
   }
 
   /**
@@ -986,7 +986,7 @@ export default function Tobii (userOptions) {
    */
   const touchstartHandler = (event) => {
     // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || TRANSFORM.scale !== MIN_SCALE) {
+    if (isIgnoreElement(event.target) || isZoomed()) {
       return
     }
 
@@ -1044,7 +1044,7 @@ export default function Tobii (userOptions) {
    */
   const mousedownHandler = (event) => {
     // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || TRANSFORM.scale !== MIN_SCALE) {
+    if (isIgnoreElement(event.target) || isZoomed()) {
       return
     }
 
@@ -1117,7 +1117,7 @@ export default function Tobii (userOptions) {
     pointerDownCache.push(event)
 
     // Allow mouse drag when scaled
-    if (TRANSFORM.scale !== MIN_SCALE) event.preventDefault()
+    if (isZoomed()) event.preventDefault()
 
     if (pointerDownCache.length === 2) {
       const { x, y } = getMidPoint()
@@ -1164,7 +1164,7 @@ export default function Tobii (userOptions) {
       return
     }
 
-    if (TRANSFORM.scale === MIN_SCALE) {
+    if (!isZoomed()) {
       // Clear cache because pointerup event could not be fired eventually
       pointerDownCache = []
       return
@@ -1204,6 +1204,8 @@ export default function Tobii (userOptions) {
   }
 
   const clamp = (value, min, max) => Math.max(Math.min(value, max), min)
+
+  const isZoomed = () => TRANSFORM.scale !== MIN_SCALE
 
   const renderTransform = (element, originX, originY, translateX, translateY, scale) => {
     window.requestAnimationFrame(() => {
@@ -1284,7 +1286,7 @@ export default function Tobii (userOptions) {
 
     if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
       event.preventDefault()
-      if (TRANSFORM.scale === MIN_SCALE) {
+      if (!isZoomed()) {
         zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
       } else {
         resetZoom()
@@ -1300,7 +1302,7 @@ export default function Tobii (userOptions) {
    */
   const wheelHandler = (event) => {
     const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1
-    if (TRANSFORM.scale === MIN_SCALE && !deltaScale) return
+    if (!isZoomed() && !deltaScale) return
     event.preventDefault()
 
     const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale)

@@ -1163,7 +1163,7 @@ export default function Tobii (userOptions) {
 
       return
     }
-    
+
     if (transform.scale === MIN_SCALE) {
       // Clear cache because pointerup event could not be fired eventually
       pointerDownCache = []
@@ -1211,7 +1211,7 @@ export default function Tobii (userOptions) {
       element.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`
     })
   }
-  
+
   const pan = (state, deltaX, deltaY) => {
     if (deltaX !== 0) {
       transform.translateX = clampedTranslate('x', state.translateX + deltaX, state)
@@ -1305,7 +1305,7 @@ export default function Tobii (userOptions) {
 
     const newScale = transform.scale + deltaScale / (SCALE_SENSITIVITY / transform.scale)
     zoomPan(
-      clamp(newScale, MIN_SCALE, MAX_SCALE),  
+      clamp(newScale, MIN_SCALE, MAX_SCALE),
       event.pageX, event.pageY,
       0, 0
     )

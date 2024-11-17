@@ -58,7 +58,6 @@ export default function Tobii (userOptions) {
   let offset = null
   let isYouTubeDependencyLoaded = false
   let groups = {}
-  let newGroup = null
   let activeGroup = null
   let pointerDownCache = []
   const MIN_SCALE = 1
@@ -243,12 +242,19 @@ export default function Tobii (userOptions) {
    * @param {HTMLElement} el - Element to add
    */
   const add = (el) => {
-    newGroup = getGroupName(el)
+    const newGroup = getGroupName(el)
 
     if (!Object.prototype.hasOwnProperty.call(groups, newGroup)) {
       groups[newGroup] = copyObject(GROUP_ATTS)
 
-      createSlider()
+      // Create slider
+      groups[newGroup].slider = document.createElement('div')
+      groups[newGroup].slider.className = 'tobii__slider'
+
+      // Hide slider
+      groups[newGroup].slider.setAttribute('aria-hidden', 'true')
+
+      lightbox.appendChild(groups[newGroup].slider)
     }
 
     // Check if element already exists
@@ -271,7 +277,30 @@ export default function Tobii (userOptions) {
       // Bind click event handler
       el.addEventListener('click', triggerTobii)
 
-      createSlide(el)
+      const model = getModel(el)
+
+      // Create slide
+      const SLIDER_ELEMENT = document.createElement('div')
+      const SLIDER_ELEMENT_CONTENT = document.createElement('div')
+
+      SLIDER_ELEMENT.className = 'tobii__slide'
+      SLIDER_ELEMENT.style.position = 'absolute'
+      SLIDER_ELEMENT.style.left = `${groups[newGroup].x * 100}%`
+
+      // Hide slide
+      SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
+
+      // Create type elements
+      model.init(el, SLIDER_ELEMENT_CONTENT, userSettings)
+
+      // Add slide content container to slider element
+      SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT)
+
+      // Add slider element to slider
+      groups[newGroup].slider.appendChild(SLIDER_ELEMENT)
+      groups[newGroup].sliderElements.push(SLIDER_ELEMENT)
+
+      ++groups[newGroup].x
 
       if (isOpen() && newGroup === activeGroup) {
         updateConfig()
@@ -385,50 +414,6 @@ export default function Tobii (userOptions) {
     document.body.appendChild(lightbox)
   }
 
-  /**
-   * Create a slider
-   */
-  const createSlider = () => {
-    groups[newGroup].slider = document.createElement('div')
-    groups[newGroup].slider.className = 'tobii__slider'
-
-    // Hide slider
-    groups[newGroup].slider.setAttribute('aria-hidden', 'true')
-
-    lightbox.appendChild(groups[newGroup].slider)
-  }
-
-  /**
-   * Create a slide
-   *
-   */
-  const createSlide = (el) => {
-    const model = getModel(el)
-
-    // Create slide elements
-    const SLIDER_ELEMENT = document.createElement('div')
-    const SLIDER_ELEMENT_CONTENT = document.createElement('div')
-
-    SLIDER_ELEMENT.className = 'tobii__slide'
-    SLIDER_ELEMENT.style.position = 'absolute'
-    SLIDER_ELEMENT.style.left = `${groups[newGroup].x * 100}%`
-
-    // Hide slide
-    SLIDER_ELEMENT.setAttribute('aria-hidden', 'true')
-
-    // Create type elements
-    model.init(el, SLIDER_ELEMENT_CONTENT, userSettings)
-
-    // Add slide content container to slider element
-    SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT)
-
-    // Add slider element to slider
-    groups[newGroup].slider.appendChild(SLIDER_ELEMENT)
-    groups[newGroup].sliderElements.push(SLIDER_ELEMENT)
-
-    ++groups[newGroup].x
-  }
-
   const getModel = (el) => {
     const type = el.getAttribute('data-type')
     if (SUPPORTED_ELEMENTS[type] !== undefined) {
@@ -447,21 +432,13 @@ export default function Tobii (userOptions) {
    *
    * @param {number} index - Index to load
    */
-  const open = (index) => {
-    activeGroup = activeGroup !== null ? activeGroup : newGroup
-
+  const open = (index = 0) => {
     if (isOpen()) {
       throw new Error('Ups, I\'m aleady open.')
     }
 
-    if (!isOpen()) {
-      if (!index) {
-        index = 0
-      }
-
-      if (index === -1 || index >= groups[activeGroup].elementsLength) {
-        throw new Error(`Ups, I can't find slide ${index}.`)
-      }
+    if (index === -1 || index >= groups[activeGroup].elementsLength) {
+      throw new Error(`Ups, I can't find slide ${index}.`)
     }
 
     document.documentElement.classList.add('tobii-is-open')
@@ -772,8 +749,6 @@ export default function Tobii (userOptions) {
    *
    */
   const updateOffset = () => {
-    activeGroup = activeGroup !== null ? activeGroup : newGroup
-
     offset = -groups[activeGroup].currentIndex * lightbox.offsetWidth
 
     groups[activeGroup].slider.style.transform = `translate(${offset}px, 0)`
@@ -876,7 +851,7 @@ export default function Tobii (userOptions) {
    * Resize event
    *
    */
-  const resizeHandler = () => {  
+  const resizeHandler = () => {
     updateOffset()
   }
 
@@ -1458,7 +1433,7 @@ export default function Tobii (userOptions) {
     })
 
     groups = {}
-    newGroup = activeGroup = null
+    activeGroup = null
 
     for (const i in SUPPORTED_ELEMENTS) {
       SUPPORTED_ELEMENTS[i].onReset()
@@ -1523,7 +1498,7 @@ export default function Tobii (userOptions) {
    *
    */
   const currentGroup = () => {
-    return activeGroup !== null ? activeGroup : newGroup
+    return activeGroup
   }
 
   /**

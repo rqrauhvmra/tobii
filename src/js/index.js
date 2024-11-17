@@ -69,7 +69,7 @@ export default function Tobii (userOptions) {
   const MAX_SCALE = 4
   const DOUBLE_TAP_TIME = 500 // milliseconds
   const SCALE_SENSITIVITY = 10
-  const transform = {
+  const TRANSFORM = {
     element: null,
     originX: 0,
     originY: 0,
@@ -768,7 +768,7 @@ export default function Tobii (userOptions) {
 
     model.onCleanup(CONTAINER)
 
-    if (transform.scale !== MIN_SCALE) resetZoom()
+    if (TRANSFORM.scale !== MIN_SCALE) resetZoom()
   }
 
   /**
@@ -986,7 +986,7 @@ export default function Tobii (userOptions) {
    */
   const touchstartHandler = (event) => {
     // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || transform.scale !== MIN_SCALE) {
+    if (isIgnoreElement(event.target) || TRANSFORM.scale !== MIN_SCALE) {
       return
     }
 
@@ -1044,7 +1044,7 @@ export default function Tobii (userOptions) {
    */
   const mousedownHandler = (event) => {
     // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || transform.scale !== MIN_SCALE) {
+    if (isIgnoreElement(event.target) || TRANSFORM.scale !== MIN_SCALE) {
       return
     }
 
@@ -1117,14 +1117,14 @@ export default function Tobii (userOptions) {
     pointerDownCache.push(event)
 
     // Allow mouse drag when scaled
-    if (transform.scale !== MIN_SCALE) event.preventDefault()
+    if (TRANSFORM.scale !== MIN_SCALE) event.preventDefault()
 
     if (pointerDownCache.length === 2) {
       const { x, y } = getMidPoint()
 
       start.x = x
       start.y = y
-      start.distance = getPinchDistance() / transform.scale
+      start.distance = getPinchDistance() / TRANSFORM.scale
 
       return
     }
@@ -1164,7 +1164,7 @@ export default function Tobii (userOptions) {
       return
     }
 
-    if (transform.scale === MIN_SCALE) {
+    if (TRANSFORM.scale === MIN_SCALE) {
       // Clear cache because pointerup event could not be fired eventually
       pointerDownCache = []
       return
@@ -1172,7 +1172,7 @@ export default function Tobii (userOptions) {
     const deltaX = event.pageX - start.x
     const deltaY = event.pageY - start.y
 
-    pan(transform, deltaX, deltaY)
+    pan(TRANSFORM, deltaX, deltaY)
 
     start.x = event.pageX
     start.y = event.pageY
@@ -1214,31 +1214,31 @@ export default function Tobii (userOptions) {
 
   const pan = (state, deltaX, deltaY) => {
     if (deltaX !== 0) {
-      transform.translateX = clampedTranslate('x', state.translateX + deltaX, state)
+      TRANSFORM.translateX = clampedTranslate('x', state.translateX + deltaX, state)
     }
     if (deltaY !== 0) {
-      transform.translateY = clampedTranslate('y', state.translateY + deltaY, state)
+      TRANSFORM.translateY = clampedTranslate('y', state.translateY + deltaY, state)
     }
 
     const { element, originX, originY, scale } = state
-    renderTransform(element, originX, originY, transform.translateX, transform.translateY, scale)
+    renderTransform(element, originX, originY, TRANSFORM.translateX, TRANSFORM.translateY, scale)
   }
 
   const zoomPan = (newScale, x, y, deltaX, deltaY) => {
-    if (!transform.element) {
-      transform.element = lightbox.querySelector('.tobii__slide--is-active img')
+    if (!TRANSFORM.element) {
+      TRANSFORM.element = lightbox.querySelector('.tobii__slide--is-active img')
     }
-    const { left, top } = transform.element.getBoundingClientRect()
+    const { left, top } = TRANSFORM.element.getBoundingClientRect()
     const originX = x - left
     const originY = y - top
-    const newOriginX = originX / transform.scale
-    const newOriginY = originY / transform.scale
+    const newOriginX = originX / TRANSFORM.scale
+    const newOriginY = originY / TRANSFORM.scale
 
-    transform.originX = newOriginX
-    transform.originY = newOriginY
-    transform.scale = newScale
+    TRANSFORM.originX = newOriginX
+    TRANSFORM.originY = newOriginY
+    TRANSFORM.scale = newScale
 
-    pan(transform, deltaX, deltaY)
+    pan(TRANSFORM, deltaX, deltaY)
   }
 
   const getPinchDistance = () => Math.hypot(
@@ -1251,11 +1251,11 @@ export default function Tobii (userOptions) {
   })
 
   const resetZoom = () => {
-    transform.scale = MIN_SCALE
-    transform.originX = 0
-    transform.originY = 0
-    transform.translateX = 0
-    transform.translateY = 0
+    TRANSFORM.scale = MIN_SCALE
+    TRANSFORM.originX = 0
+    TRANSFORM.originY = 0
+    TRANSFORM.translateX = 0
+    TRANSFORM.translateY = 0
 
     lastTapTime = 0
 
@@ -1263,9 +1263,9 @@ export default function Tobii (userOptions) {
     start.y = 0
     start.distance = 0
 
-    pan(transform, 0, 0)
+    pan(TRANSFORM, 0, 0)
 
-    transform.element = null
+    TRANSFORM.element = null
   }
 
   /**
@@ -1284,7 +1284,7 @@ export default function Tobii (userOptions) {
 
     if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
       event.preventDefault()
-      if (transform.scale === MIN_SCALE) {
+      if (TRANSFORM.scale === MIN_SCALE) {
         zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
       } else {
         resetZoom()
@@ -1300,10 +1300,10 @@ export default function Tobii (userOptions) {
    */
   const wheelHandler = (event) => {
     const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1
-    if (transform.scale === MIN_SCALE && !deltaScale) return
+    if (TRANSFORM.scale === MIN_SCALE && !deltaScale) return
     event.preventDefault()
 
-    const newScale = transform.scale + deltaScale / (SCALE_SENSITIVITY / transform.scale)
+    const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale)
     zoomPan(
       clamp(newScale, MIN_SCALE, MAX_SCALE),
       event.pageX, event.pageY,

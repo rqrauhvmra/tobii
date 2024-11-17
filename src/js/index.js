@@ -780,7 +780,7 @@ export default function Tobii (userOptions) {
 
     offset = -groups[activeGroup].currentIndex * lightbox.offsetWidth
 
-    groups[activeGroup].slider.style.transform = `translate3d(${offset}px, 0, 0)`
+    groups[activeGroup].slider.style.transform = `translate(${offset}px, 0)`
     offsetTmp = offset
   }
 
@@ -1321,14 +1321,14 @@ export default function Tobii (userOptions) {
     if (Math.abs(drag.startX - drag.endX) > 0 && !isDraggingY && groups[activeGroup].elementsLength > 1) {
       // Horizontal swipe
       groups[activeGroup].slider.style.transform =
-        `translate3d(${offsetTmp - Math.round(drag.startX - drag.endX)}px, 0, 0)`
+        `translate(${offsetTmp - Math.round(drag.startX - drag.endX)}px, 0)`
 
       isDraggingX = true
       isDraggingY = false
     } else if (Math.abs(drag.startY - drag.endY) > 0 && !isDraggingX && userSettings.swipeClose) {
       // Vertical swipe
       groups[activeGroup].slider.style.transform =
-        `translate3d(${offsetTmp}px, -${Math.round(drag.startY - drag.endY)}px, 0)`
+        `translate(${offsetTmp}px, -${Math.round(drag.startY - drag.endY)}px)`
 
       isDraggingX = false
       isDraggingY = true

@@ -202,7 +202,7 @@
 
     /* Fix iframe scrolling on iOS */
     -webkit-overflow-scrolling: touch;
-    transform: translate3d(0, 0, 0);
+    transform: translate(0, 0);
 
 
     & iframe {

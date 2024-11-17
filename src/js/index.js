@@ -53,12 +53,9 @@ export default function Tobii (userOptions) {
   let closeButton = null
   let counter = null
   let drag = {}
-  let isDraggingX = false
-  let isDraggingY = false
   let pointerDown = false
   let lastFocus = null
   let offset = null
-  let offsetTmp = null
   let resizeTicking = false
   let isYouTubeDependencyLoaded = false
   let groups = {}
@@ -781,7 +778,6 @@ export default function Tobii (userOptions) {
     offset = -groups[activeGroup].currentIndex * lightbox.offsetWidth
 
     groups[activeGroup].slider.style.transform = `translate(${offset}px, 0)`
-    offsetTmp = offset
   }
 
   /**
@@ -914,8 +910,8 @@ export default function Tobii (userOptions) {
       previous()
     } else if (event.target === nextButton) {
       next()
-    } else if (event.target === closeButton || (isDraggingX === false && isDraggingY === false &&
-      event.target.classList.contains('tobii__slide') && userSettings.docClose)) {
+    } else if (event.target === closeButton ||
+      (event.target.classList.contains('tobii__slide') && userSettings.docClose)) {
       close()
     }
 
@@ -992,9 +988,6 @@ export default function Tobii (userOptions) {
 
     event.stopPropagation()
 
-    isDraggingX = false
-    isDraggingY = false
-
     pointerDown = true
 
     drag.startX = event.touches[0].pageX
@@ -1050,9 +1043,6 @@ export default function Tobii (userOptions) {
 
     event.preventDefault()
     event.stopPropagation()
-
-    isDraggingX = false
-    isDraggingY = false
 
     pointerDown = true
 
@@ -1314,24 +1304,24 @@ export default function Tobii (userOptions) {
   }
 
   /**
-   * Decide whether to do horizontal of vertical swipe
+   * Decide whether to animate horizontal of vertical swipe
    *
    */
   const doSwipe = () => {
-    if (Math.abs(drag.startX - drag.endX) > 0 && !isDraggingY && groups[activeGroup].elementsLength > 1) {
+    const deltaX = drag.startX - drag.endX
+    const deltaY = drag.startY - drag.endY
+
+    // Skip animation if drag distance is too low
+    if (Math.hypot(deltaX, deltaY) < 10) return
+
+    if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
       // Horizontal swipe
       groups[activeGroup].slider.style.transform =
-        `translate(${offsetTmp - Math.round(drag.startX - drag.endX)}px, 0)`
-
-      isDraggingX = true
-      isDraggingY = false
-    } else if (Math.abs(drag.startY - drag.endY) > 0 && !isDraggingX && userSettings.swipeClose) {
+        `translate(${offset - Math.round(deltaX)}px, 0)`
+    } else if (userSettings.swipeClose) {
       // Vertical swipe
       groups[activeGroup].slider.style.transform =
-        `translate(${offsetTmp}px, -${Math.round(drag.startY - drag.endY)}px)`
-
-      isDraggingX = false
-      isDraggingY = true
+      `translate(${offset}px, -${Math.round(deltaY)}px)`
     }
   }
 

@@ -56,7 +56,6 @@ export default function Tobii (userOptions) {
   let pointerDown = false
   let lastFocus = null
   let offset = null
-  let resizeTicking = false
   let isYouTubeDependencyLoaded = false
   let groups = {}
   let newGroup = null
@@ -874,19 +873,11 @@ export default function Tobii (userOptions) {
   }
 
   /**
-   * Resize event using requestAnimationFrame
+   * Resize event
    *
    */
-  const resizeHandler = () => {
-    if (!resizeTicking) {
-      resizeTicking = true
-
-      window.requestAnimationFrame(() => {
-        updateOffset()
-
-        resizeTicking = false
-      })
-    }
+  const resizeHandler = () => {  
+    updateOffset()
   }
 
   /**
@@ -1162,16 +1153,16 @@ export default function Tobii (userOptions) {
     const deltaX = event.pageX - start.x
     const deltaY = event.pageY - start.y
 
-    pan(TRANSFORM, deltaX, deltaY)
+    pan(deltaX, deltaY)
 
     start.x = event.pageX
     start.y = event.pageY
   }
 
-  const clampedTranslate = (axis, translate, state) => {
+  const clampedTranslate = (axis, translate) => {
     // Whole clamping functionality heavily inspired
     // by https://github.com/Neophen/pinch-zoom-pan
-    const { element, scale, originX, originY } = state
+    const { element, scale, originX, originY } = TRANSFORM
     const axisIsX = axis === 'x'
     const origin = axisIsX ? originX : originY
     const axisKey = axisIsX ? 'offsetWidth' : 'offsetHeight'
@@ -1197,23 +1188,17 @@ export default function Tobii (userOptions) {
 
   const isZoomed = () => TRANSFORM.scale !== MIN_SCALE
 
-  const renderTransform = (element, originX, originY, translateX, translateY, scale) => {
-    window.requestAnimationFrame(() => {
-      element.style.transformOrigin = `${originX}px ${originY}px`
-      element.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`
-    })
-  }
-
-  const pan = (state, deltaX, deltaY) => {
+  const pan = (deltaX, deltaY) => {
     if (deltaX !== 0) {
-      TRANSFORM.translateX = clampedTranslate('x', state.translateX + deltaX, state)
+      TRANSFORM.translateX = clampedTranslate('x', TRANSFORM.translateX + deltaX)
     }
     if (deltaY !== 0) {
-      TRANSFORM.translateY = clampedTranslate('y', state.translateY + deltaY, state)
+      TRANSFORM.translateY = clampedTranslate('y', TRANSFORM.translateY + deltaY)
     }
 
-    const { element, originX, originY, scale } = state
-    renderTransform(element, originX, originY, TRANSFORM.translateX, TRANSFORM.translateY, scale)
+    const { element, originX, originY, translateX, translateY, scale } = TRANSFORM
+    element.style.transformOrigin = `${originX}px ${originY}px`
+    element.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`
   }
 
   const zoomPan = (newScale, x, y, deltaX, deltaY) => {
@@ -1230,7 +1215,7 @@ export default function Tobii (userOptions) {
     TRANSFORM.originY = newOriginY
     TRANSFORM.scale = newScale
 
-    pan(TRANSFORM, deltaX, deltaY)
+    pan(deltaX, deltaY)
   }
 
   const getPinchDistance = () => Math.hypot(
@@ -1255,7 +1240,7 @@ export default function Tobii (userOptions) {
     start.y = 0
     start.distance = 0
 
-    pan(TRANSFORM, 0, 0)
+    pan(0, 0)
 
     TRANSFORM.element = null
   }

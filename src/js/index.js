@@ -52,14 +52,13 @@ export default function Tobii (userOptions) {
   let nextButton = null
   let closeButton = null
   let counter = null
-  let drag = {}
-  let pointerDown = false
   let lastFocus = null
   let offset = null
   let isYouTubeDependencyLoaded = false
   let groups = {}
   let activeGroup = null
   let pointerDownCache = []
+  let lastTapTime = 0
   const MIN_SCALE = 1
   const MAX_SCALE = 4
   const DOUBLE_TAP_TIME = 500 // milliseconds
@@ -72,12 +71,13 @@ export default function Tobii (userOptions) {
     translateY: 0,
     scale: MIN_SCALE
   }
-  const start = {
+  const DRAG = {
+    startX: 0,
+    startY: 0,
     x: 0,
     y: 0,
     distance: 0
   }
-  let lastTapTime = 0
 
   /**
    * Merge default options with user options
@@ -114,7 +114,6 @@ export default function Tobii (userOptions) {
       keyboard: true,
       zoom: true,
       zoomText: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
-      pinchZoom: true,
       docClose: true,
       swipeClose: true,
       hideScrollbar: true,
@@ -468,7 +467,6 @@ export default function Tobii (userOptions) {
     // Set current index
     groups[activeGroup].currentIndex = index
 
-    clearDrag()
     bindEvents()
 
     // Load slide
@@ -741,6 +739,12 @@ export default function Tobii (userOptions) {
 
     model.onCleanup(CONTAINER)
 
+    DRAG.startX = 0
+    DRAG.startY = 0
+    DRAG.x = 0
+    DRAG.y = 0
+    DRAG.distance = 0
+
     if (isZoomed()) resetZoom()
   }
 
@@ -809,41 +813,6 @@ export default function Tobii (userOptions) {
       }
     } else if (userSettings.close) {
       closeButton.focus()
-    }
-  }
-
-  /**
-   * Clear drag after touchend and mouseup event
-   *
-   */
-  const clearDrag = () => {
-    drag = {
-      startX: 0,
-      endX: 0,
-      startY: 0,
-      endY: 0
-    }
-  }
-
-  /**
-   * Recalculate drag / swipe event
-   *
-   */
-  const updateAfterDrag = () => {
-    const MOVEMENT_X = drag.endX - drag.startX
-    const MOVEMENT_Y = drag.endY - drag.startY
-    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
-    const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
-
-    if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
-      previous()
-    } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
-      groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
-      next()
-    } else if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
-      close()
-    } else {
-      updateOffset()
     }
   }
 
@@ -943,117 +912,6 @@ export default function Tobii (userOptions) {
   }
 
   /**
-   * Touchstart event handler
-   *
-   */
-  const touchstartHandler = (event) => {
-    // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || isZoomed()) {
-      return
-    }
-
-    event.stopPropagation()
-
-    pointerDown = true
-
-    drag.startX = event.touches[0].pageX
-    drag.startY = event.touches[0].pageY
-
-    if (isTouchDevice()) {
-      groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
-    }
-  }
-
-  /**
-   * Touchmove event handler
-   *
-   */
-  const touchmoveHandler = (event) => {
-    event.stopPropagation()
-
-    if (pointerDown) {
-      drag.endX = event.touches[0].pageX
-      drag.endY = event.touches[0].pageY
-
-      doSwipe()
-    }
-  }
-
-  /**
-   * Touchend event handler
-   *
-   */
-  const touchendHandler = (event) => {
-    event.stopPropagation()
-
-    pointerDown = false
-
-    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
-
-    if (drag.endX) {
-      updateAfterDrag()
-    }
-
-    clearDrag()
-  }
-
-  /**
-   * Mousedown event handler
-   *
-   */
-  const mousedownHandler = (event) => {
-    // Prevent dragging / swiping on textareas, inputs and selects or if scaled
-    if (isIgnoreElement(event.target) || isZoomed()) {
-      return
-    }
-
-    event.preventDefault()
-    event.stopPropagation()
-
-    pointerDown = true
-
-    drag.startX = event.pageX
-    drag.startY = event.pageY
-
-    if (isTouchDevice()) {
-      groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
-    }
-  }
-
-  /**
-   * Mousemove event handler
-   *
-   */
-  const mousemoveHandler = (event) => {
-    event.preventDefault()
-
-    if (pointerDown) {
-      drag.endX = event.pageX
-      drag.endY = event.pageY
-
-      doSwipe()
-    }
-  }
-
-  /**
-   * Mouseup event handler
-   *
-   */
-  const mouseupHandler = (event) => {
-    event.stopPropagation()
-
-    pointerDown = false
-
-    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
-
-    if (drag.endX) {
-      updateAfterDrag()
-    }
-
-    clearDrag()
-  }
-
-  /**
    * Contextmenu event handler
    * This is a fix for chromium based browser on mac.
    * The 'contextmenu' terminates a mouse event sequence.
@@ -1061,7 +919,8 @@ export default function Tobii (userOptions) {
    *
    */
   const contextmenuHandler = () => {
-    pointerDown = false
+    pointerDownCache = []
+    updateOffset()
   }
 
   /**
@@ -1069,25 +928,33 @@ export default function Tobii (userOptions) {
    *
    */
   const pointerdownHandler = (event) => {
-    // This event is cached to support 2-finger gestures
-    pointerDownCache.push(event)
-
-    // Allow mouse drag when scaled
-    if (isZoomed()) event.preventDefault()
-
-    if (pointerDownCache.length === 2) {
-      const { x, y } = getMidPoint()
-
-      start.x = x
-      start.y = y
-      start.distance = getPinchDistance() / TRANSFORM.scale
-
+    // Prevent dragging / swiping on textareas, inputs and selects
+    if (isIgnoreElement(event.target)) {
       return
     }
 
-    start.x = event.pageX
-    start.y = event.pageY
-    start.distance = 0
+    event.preventDefault()
+    event.stopPropagation()
+
+    DRAG.startX = DRAG.x = event.pageX
+    DRAG.startY = DRAG.y = event.pageY
+    DRAG.distance = 0
+
+    // This event is cached to support 2-finger gestures
+    pointerDownCache.push(event)
+
+    if (pointerDownCache.length === 2) {
+      const { x, y } = midPoint(
+        pointerDownCache[0].pageX, pointerDownCache[0].pageY,
+        pointerDownCache[1].pageX, pointerDownCache[1].pageY
+      )
+
+      DRAG.startX = DRAG.x = x
+      DRAG.startY = DRAG.y = y
+      DRAG.distance = distance(
+        pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
+      ) / TRANSFORM.scale
+    }
   }
 
   /**
@@ -1105,33 +972,56 @@ export default function Tobii (userOptions) {
 
     if (pointerDownCache.length === 2) {
       // 2-pointer horizontal pinch/zoom gesture
-      const { x, y } = getMidPoint()
-      const scale = getPinchDistance() / start.distance
+      const { x, y } = midPoint(
+        pointerDownCache[0].pageX, pointerDownCache[0].pageY,
+        pointerDownCache[1].pageX, pointerDownCache[1].pageY
+      )
+      const scale = distance(
+        pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
+      ) / DRAG.distance
 
       zoomPan(
         clamp(scale, MIN_SCALE, MAX_SCALE),
         x, y,
-        x - start.x, y - start.y
+        x - DRAG.x, y - DRAG.y
       )
 
-      start.x = x
-      start.y = y
+      DRAG.x = x
+      DRAG.y = y
 
       return
     }
+
+    if (isZoomed()) {
+      const deltaX = event.pageX - DRAG.x
+      const deltaY = event.pageY - DRAG.y
+
+      pan(deltaX, deltaY)
+    }
+
+    DRAG.x = event.pageX
+    DRAG.y = event.pageY
 
     if (!isZoomed()) {
-      // Clear cache because pointerup event could not be fired eventually
-      pointerDownCache = []
-      return
+      // Evaluate drag animation
+      const deltaX = DRAG.startX - DRAG.x
+      const deltaY = DRAG.startY - DRAG.y
+
+      // Skip animation if drag distance is too low
+      if (distance(deltaX, deltaY) < 10) return
+
+      if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
+        // Horizontal swipe
+        groups[activeGroup].slider.style.transform =
+          `translate(${offset - Math.round(deltaX)}px, 0)`
+      } else if (userSettings.swipeClose) {
+        // Vertical swipe
+        groups[activeGroup].slider.style.transform =
+        `translate(${offset}px, -${Math.round(deltaY)}px)`
+      }
     }
-    const deltaX = event.pageX - start.x
-    const deltaY = event.pageY - start.y
 
-    pan(deltaX, deltaY)
-
-    start.x = event.pageX
-    start.y = event.pageY
+    groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
   }
 
   const clampedTranslate = (axis, translate) => {
@@ -1193,13 +1083,11 @@ export default function Tobii (userOptions) {
     pan(deltaX, deltaY)
   }
 
-  const getPinchDistance = () => Math.hypot(
-    pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
-  )
+  const distance = (dx, dy) => Math.hypot(dx, dy)
 
-  const getMidPoint = () => ({
-    x: (pointerDownCache[0].pageX + pointerDownCache[1].pageX) / 2,
-    y: (pointerDownCache[0].pageY + pointerDownCache[1].pageY) / 2
+  const midPoint = (x1, y1, x2, y2) => ({
+    x: (x1 + x2) / 2,
+    y: (y1 + y2) / 2
   })
 
   const resetZoom = () => {
@@ -1208,12 +1096,6 @@ export default function Tobii (userOptions) {
     TRANSFORM.originY = 0
     TRANSFORM.translateX = 0
     TRANSFORM.translateY = 0
-
-    lastTapTime = 0
-
-    start.x = 0
-    start.y = 0
-    start.distance = 0
 
     pan(0, 0)
 
@@ -1225,25 +1107,48 @@ export default function Tobii (userOptions) {
    *
    */
   const pointerupHandler = (event) => {
+    event.stopPropagation()
+
+    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
+    if (isDragging && !isZoomed()) {
+      const MOVEMENT_X = DRAG.x - DRAG.startX
+      const MOVEMENT_Y = DRAG.y - DRAG.startY
+      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
+      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
+
+      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+        previous()
+      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
+        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
+        next()
+      } else if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
+        close()
+      } else {
+        updateOffset()
+      }
+    }
+
+    const currentTime = new Date().getTime()
+    const tapLength = currentTime - lastTapTime
+    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
+      event.preventDefault()
+      if (isZoomed()) {
+        resetZoom()
+      } else {
+        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
+      }
+      lastTapTime = 0
+    } else {
+      lastTapTime = currentTime
+    }
+
     // Remove this event from the target's cache
     const index = pointerDownCache.findIndex(
       (cachedEv) => cachedEv.pointerId === event.pointerId
     )
     pointerDownCache.splice(index, 1)
 
-    const currentTime = new Date().getTime()
-    const tapLength = currentTime - lastTapTime
-
-    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
-      event.preventDefault()
-      if (!isZoomed()) {
-        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
-      } else {
-        resetZoom()
-      }
-    }
-
-    lastTapTime = currentTime
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
   }
 
   /**
@@ -1264,28 +1169,6 @@ export default function Tobii (userOptions) {
   }
 
   /**
-   * Decide whether to animate horizontal of vertical swipe
-   *
-   */
-  const doSwipe = () => {
-    const deltaX = drag.startX - drag.endX
-    const deltaY = drag.startY - drag.endY
-
-    // Skip animation if drag distance is too low
-    if (Math.hypot(deltaX, deltaY) < 10) return
-
-    if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
-      // Horizontal swipe
-      groups[activeGroup].slider.style.transform =
-        `translate(${offset - Math.round(deltaX)}px, 0)`
-    } else if (userSettings.swipeClose) {
-      // Vertical swipe
-      groups[activeGroup].slider.style.transform =
-      `translate(${offset}px, -${Math.round(deltaY)}px)`
-    }
-  }
-
-  /**
    * Bind events
    *
    */
@@ -1303,26 +1186,19 @@ export default function Tobii (userOptions) {
     // Click event
     lightbox.addEventListener('click', clickHandler)
 
-    if (userSettings.draggable && isTouchDevice()) {
-      // Touch events
-      lightbox.addEventListener('touchstart', touchstartHandler)
-      lightbox.addEventListener('touchmove', touchmoveHandler)
-      lightbox.addEventListener('touchend', touchendHandler)
-
-      // Mouse events
-      lightbox.addEventListener('mousedown', mousedownHandler)
-      lightbox.addEventListener('mouseup', mouseupHandler)
-      lightbox.addEventListener('mousemove', mousemoveHandler)
-      lightbox.addEventListener('contextmenu', contextmenuHandler)
-    }
-
-    if (userSettings.pinchZoom) {
+    if (userSettings.draggable) {
       // Pointer events
       lightbox.addEventListener('pointerdown', pointerdownHandler)
       lightbox.addEventListener('pointermove', pointermoveHandler)
       lightbox.addEventListener('pointerup', pointerupHandler)
-      lightbox.addEventListener('wheel', wheelHandler)
+      lightbox.addEventListener('pointercancel', contextmenuHandler)
+      lightbox.addEventListener('pointerout', contextmenuHandler)
+      lightbox.addEventListener('pointerleave', contextmenuHandler)
+      lightbox.addEventListener('contextmenu', contextmenuHandler)
     }
+
+    // Wheel event
+    lightbox.addEventListener('wheel', wheelHandler)
   }
 
   /**
@@ -1343,26 +1219,19 @@ export default function Tobii (userOptions) {
     // Click event
     lightbox.removeEventListener('click', clickHandler)
 
-    if (userSettings.draggable && isTouchDevice()) {
-      // Touch events
-      lightbox.removeEventListener('touchstart', touchstartHandler)
-      lightbox.removeEventListener('touchmove', touchmoveHandler)
-      lightbox.removeEventListener('touchend', touchendHandler)
-
-      // Mouse events
-      lightbox.removeEventListener('mousedown', mousedownHandler)
-      lightbox.removeEventListener('mouseup', mouseupHandler)
-      lightbox.removeEventListener('mousemove', mousemoveHandler)
-      lightbox.removeEventListener('contextmenu', contextmenuHandler)
-    }
-
-    if (userSettings.pinchZoom) {
+    if (userSettings.draggable) {
       // Pointer events
       lightbox.removeEventListener('pointerdown', pointerdownHandler)
       lightbox.removeEventListener('pointermove', pointermoveHandler)
       lightbox.removeEventListener('pointerup', pointerupHandler)
-      lightbox.removeEventListener('wheel', wheelHandler)
+      lightbox.removeEventListener('pointercancel', contextmenuHandler)
+      lightbox.removeEventListener('pointerout', contextmenuHandler)
+      lightbox.removeEventListener('pointerleave', contextmenuHandler)
+      lightbox.removeEventListener('contextmenu', contextmenuHandler)
     }
+
+    // Wheel event
+    lightbox.removeEventListener('wheel', wheelHandler)
   }
 
   /**
@@ -1370,11 +1239,8 @@ export default function Tobii (userOptions) {
    *
    */
   const updateConfig = () => {
-    if ((userSettings.draggable && userSettings.swipeClose && isTouchDevice() &&
-      !groups[activeGroup].slider.classList.contains('tobii__slider--is-draggable')) ||
-      (userSettings.draggable && groups[activeGroup].elementsLength > 1 &&
-       !groups[activeGroup].slider.classList.contains('tobii__slider--is-draggable'))
-    ) {
+    if (userSettings.draggable &&
+      !groups[activeGroup].slider.classList.contains('tobii__slider--is-draggable')) {
       groups[activeGroup].slider.classList.add('tobii__slider--is-draggable')
     }
 

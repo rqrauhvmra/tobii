@@ -52,9 +52,11 @@ An accessible, open-source lightbox with no dependencies.
     - `prefers-reduced-motion` media query
   - When Tobii opens, focus is set to the first focusable element in Tobii
   - When Tobii closes, focus returns to what was in focus before Tobii opened
-- Touch & Mouse drag support:
-  - Drag/ Swipe horizontal to navigate through slides
-  - Drag/ Swipe vertical to close Tobii
+- Touch & mouse drag/swipe support:
+  - Horizontal to navigate through slides
+  - Vertical up to close Tobii
+- Double click, pinch and wheel zoom:
+  - Hold pointer to pan
 - Responsive
 
 ## Get Tobii
@@ -276,7 +278,6 @@ The following options are available:
 | keyboard | bool | true | Allow keyboard navigation. |
 | zoom | bool | true | Display zoom icon. |
 | zoomText | string | "inline svg" | Text or HTML for the zoom icon. |
-| pinchZoom | bool | true | Pinch zoom gesture on touch devices. |
 | docClose | bool | true | Click outside to close Tobii. |
 | swipeClose | bool | true | Swipe up to close Tobii. |
 | draggable | bool | true | Use dragging and touch swiping. |

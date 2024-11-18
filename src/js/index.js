@@ -1184,21 +1184,21 @@ export default function Tobii (userOptions) {
     window.addEventListener('popstate', close)
 
     // Click event
-    lightbox.addEventListener('click', clickHandler)
+    on('click', clickHandler)
 
     if (userSettings.draggable) {
       // Pointer events
-      lightbox.addEventListener('pointerdown', pointerdownHandler)
-      lightbox.addEventListener('pointermove', pointermoveHandler)
-      lightbox.addEventListener('pointerup', pointerupHandler)
-      lightbox.addEventListener('pointercancel', contextmenuHandler)
-      lightbox.addEventListener('pointerout', contextmenuHandler)
-      lightbox.addEventListener('pointerleave', contextmenuHandler)
-      lightbox.addEventListener('contextmenu', contextmenuHandler)
+      on('pointerdown', pointerdownHandler)
+      on('pointermove', pointermoveHandler)
+      on('pointerup', pointerupHandler)
+      on('pointercancel', contextmenuHandler)
+      on('pointerout', contextmenuHandler)
+      on('pointerleave', contextmenuHandler)
+      on('contextmenu', contextmenuHandler)
     }
 
     // Wheel event
-    lightbox.addEventListener('wheel', wheelHandler)
+    on('wheel', wheelHandler)
   }
 
   /**
@@ -1217,21 +1217,21 @@ export default function Tobii (userOptions) {
     window.removeEventListener('popstate', close)
 
     // Click event
-    lightbox.removeEventListener('click', clickHandler)
+    off('click', clickHandler)
 
     if (userSettings.draggable) {
       // Pointer events
-      lightbox.removeEventListener('pointerdown', pointerdownHandler)
-      lightbox.removeEventListener('pointermove', pointermoveHandler)
-      lightbox.removeEventListener('pointerup', pointerupHandler)
-      lightbox.removeEventListener('pointercancel', contextmenuHandler)
-      lightbox.removeEventListener('pointerout', contextmenuHandler)
-      lightbox.removeEventListener('pointerleave', contextmenuHandler)
-      lightbox.removeEventListener('contextmenu', contextmenuHandler)
+      off('pointerdown', pointerdownHandler)
+      off('pointermove', pointermoveHandler)
+      off('pointerup', pointerupHandler)
+      off('pointercancel', contextmenuHandler)
+      off('pointerout', contextmenuHandler)
+      off('pointerleave', contextmenuHandler)
+      off('contextmenu', contextmenuHandler)
     }
 
     // Wheel event
-    lightbox.removeEventListener('wheel', wheelHandler)
+    off('wheel', wheelHandler)
   }
 
   /**

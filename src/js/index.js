@@ -1005,12 +1005,14 @@ export default function Tobii (userOptions) {
     DRAG.y = event.pageY
 
     if (!isZoomed()) {
-      // Evaluate drag animation
+      // Drag animation
       const deltaX = DRAG.startX - DRAG.x
       const deltaY = DRAG.startY - DRAG.y
 
       // Skip animation if drag distance is too low
       if (distance(deltaX, deltaY) < 10) return
+
+      groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
 
       if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
         // Horizontal swipe
@@ -1022,8 +1024,6 @@ export default function Tobii (userOptions) {
         `translate(${offset}px, -${Math.round(deltaY)}px)`
       }
     }
-
-    groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
   }
 
   /**
@@ -1033,46 +1033,63 @@ export default function Tobii (userOptions) {
   const pointerupHandler = (event) => {
     event.stopPropagation()
 
-    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
-    if (isDragging && !isZoomed()) {
-      const MOVEMENT_X = DRAG.x - DRAG.startX
-      const MOVEMENT_Y = DRAG.y - DRAG.startY
-      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
-      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
-
-      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
-        previous()
-      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
-        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
-        next()
-      } else if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
-        close()
-      } else {
-        updateOffset()
-      }
-    }
-
-    const currentTime = new Date().getTime()
-    const tapLength = currentTime - lastTapTime
-    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
-      event.preventDefault()
-      if (isZoomed()) {
-        resetZoom()
-      } else {
-        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
-      }
-      lastTapTime = 0
-    } else {
-      lastTapTime = currentTime
-    }
-
     // Remove this event from the target's cache
     const index = pointerDownCache.findIndex(
       (cachedEv) => cachedEv.pointerId === event.pointerId
     )
     pointerDownCache.splice(index, 1)
 
-    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
+    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
+    if (!isDragging) {
+      // Evaluate tap
+      const currentTime = new Date().getTime()
+      const tapLength = currentTime - lastTapTime
+      if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
+        // Double click
+        event.preventDefault()
+        lastTapTime = 0
+        if (isZoomed()) {
+          resetZoom()
+        } else {
+          zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
+        }
+      } else {
+        lastTapTime = currentTime
+        if (isTouchDevice()) {
+          // Delayed tap on mobile
+          window.setTimeout(() => {
+            const { left, top, bottom, right, width } = event.target.getBoundingClientRect()
+            if (DRAG.startY < top || DRAG.startY > bottom || !lastTapTime) return
+            if (DRAG.startX > left && DRAG.startX < left + width / 2) {
+              previous()
+            } else if (DRAG.startX < right && DRAG.startX > right - width / 2) {
+              next()
+            }
+          }, DOUBLE_TAP_TIME)
+        }
+      }
+    }
+
+    if (isDragging && !isZoomed()) {
+      // Evaluate drag
+      groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
+
+      const MOVEMENT_X = DRAG.startX - DRAG.x
+      const MOVEMENT_Y = DRAG.startY - DRAG.y
+      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
+      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
+
+      if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+        previous()
+      } else if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
+        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
+        next()
+      } else if (MOVEMENT_Y > 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
+        close()
+      } else {
+        updateOffset()
+      }
+    }
   }
 
   /**

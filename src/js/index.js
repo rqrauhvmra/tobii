@@ -1024,6 +1024,72 @@ export default function Tobii (userOptions) {
     groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
   }
 
+  /**
+   * Pointerup event handler
+   *
+   */
+  const pointerupHandler = (event) => {
+    event.stopPropagation()
+
+    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
+    if (isDragging && !isZoomed()) {
+      const MOVEMENT_X = DRAG.x - DRAG.startX
+      const MOVEMENT_Y = DRAG.y - DRAG.startY
+      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
+      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
+
+      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+        previous()
+      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
+        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
+        next()
+      } else if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
+        close()
+      } else {
+        updateOffset()
+      }
+    }
+
+    const currentTime = new Date().getTime()
+    const tapLength = currentTime - lastTapTime
+    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
+      event.preventDefault()
+      if (isZoomed()) {
+        resetZoom()
+      } else {
+        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
+      }
+      lastTapTime = 0
+    } else {
+      lastTapTime = currentTime
+    }
+
+    // Remove this event from the target's cache
+    const index = pointerDownCache.findIndex(
+      (cachedEv) => cachedEv.pointerId === event.pointerId
+    )
+    pointerDownCache.splice(index, 1)
+
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
+  }
+
+  /**
+   * Wheel event handler
+   *
+   */
+  const wheelHandler = (event) => {
+    const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1
+    if (!isZoomed() && !deltaScale) return
+    event.preventDefault()
+
+    const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale)
+    zoomPan(
+      clamp(newScale, MIN_SCALE, MAX_SCALE),
+      event.pageX, event.pageY,
+      0, 0
+    )
+  }
+
   const clampedTranslate = (axis, translate) => {
     // Whole clamping functionality heavily inspired
     // by https://github.com/Neophen/pinch-zoom-pan
@@ -1100,72 +1166,6 @@ export default function Tobii (userOptions) {
     pan(0, 0)
 
     TRANSFORM.element = null
-  }
-
-  /**
-   * Pointerup event handler
-   *
-   */
-  const pointerupHandler = (event) => {
-    event.stopPropagation()
-
-    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
-    if (isDragging && !isZoomed()) {
-      const MOVEMENT_X = DRAG.x - DRAG.startX
-      const MOVEMENT_Y = DRAG.y - DRAG.startY
-      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
-      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
-
-      if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
-        previous()
-      } else if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
-        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
-        next()
-      } else if (MOVEMENT_Y < 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
-        close()
-      } else {
-        updateOffset()
-      }
-    }
-
-    const currentTime = new Date().getTime()
-    const tapLength = currentTime - lastTapTime
-    if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
-      event.preventDefault()
-      if (isZoomed()) {
-        resetZoom()
-      } else {
-        zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
-      }
-      lastTapTime = 0
-    } else {
-      lastTapTime = currentTime
-    }
-
-    // Remove this event from the target's cache
-    const index = pointerDownCache.findIndex(
-      (cachedEv) => cachedEv.pointerId === event.pointerId
-    )
-    pointerDownCache.splice(index, 1)
-
-    groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
-  }
-
-  /**
-   * Wheel event handler
-   *
-   */
-  const wheelHandler = (event) => {
-    const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1
-    if (!isZoomed() && !deltaScale) return
-    event.preventDefault()
-
-    const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale)
-    zoomPan(
-      clamp(newScale, MIN_SCALE, MAX_SCALE),
-      event.pageX, event.pageY,
-      0, 0
-    )
   }
 
   /**

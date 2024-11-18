@@ -745,6 +745,8 @@ export default function Tobii (userOptions) {
     DRAG.y = 0
     DRAG.distance = 0
 
+    lastTapTime = 0
+
     if (isZoomed()) resetZoom()
   }
 

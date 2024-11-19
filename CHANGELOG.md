@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.6.0
+
+### New
+
+- Pinch zoom feature for touch devices
+- Double click and wheel zoom with mouse/touch clamped pan
+- Delayed tap on mobile for prev/next navigation
+
+### Fixed
+
+- Not clickable close() region above slider
+
 ## v2.5.0
 
 ### New

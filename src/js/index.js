@@ -923,6 +923,7 @@ export default function Tobii (userOptions) {
   const contextmenuHandler = () => {
     pointerDownCache = []
     updateOffset()
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'))
   }
 
   /**

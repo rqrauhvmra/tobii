@@ -966,6 +966,8 @@ export default function Tobii (userOptions) {
   const pointermoveHandler = (event) => {
     if (!pointerDownCache.length) return
 
+    groups[activeGroup].slider.classList.add('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'))
+
     // Find this event in the cache and update its record with this event
     const index = pointerDownCache.findIndex(
       (cachedEv) => cachedEv.pointerId === event.pointerId
@@ -1012,8 +1014,6 @@ export default function Tobii (userOptions) {
       // Skip animation if drag distance is too low
       if (distance(deltaX, deltaY) < 10) return
 
-      groups[activeGroup].slider.classList.add('tobii__slider--is-dragging')
-
       if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
         // Horizontal swipe
         groups[activeGroup].slider.style.transform =
@@ -1033,14 +1033,33 @@ export default function Tobii (userOptions) {
   const pointerupHandler = (event) => {
     event.stopPropagation()
 
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'))
+
     // Remove this event from the target's cache
     const index = pointerDownCache.findIndex(
       (cachedEv) => cachedEv.pointerId === event.pointerId
     )
     pointerDownCache.splice(index, 1)
 
-    const isDragging = DRAG.startX !== DRAG.x || DRAG.startY !== DRAG.y
-    if (!isDragging) {
+    const MOVEMENT_X = DRAG.startX - DRAG.x
+    const MOVEMENT_Y = DRAG.startY - DRAG.y
+    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
+    const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
+    if (MOVEMENT_X_DISTANCE || MOVEMENT_Y_DISTANCE) {
+      if (!isZoomed()) {
+        // Evaluate drag
+        if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+          previous()
+        } else if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
+          groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
+          next()
+        } else if (MOVEMENT_Y > 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
+          close()
+        } else {
+          updateOffset()
+        }
+      }
+    } else {
       // Evaluate tap
       const currentTime = new Date().getTime()
       const tapLength = currentTime - lastTapTime
@@ -1067,27 +1086,6 @@ export default function Tobii (userOptions) {
             }
           }, DOUBLE_TAP_TIME)
         }
-      }
-    }
-
-    if (isDragging && !isZoomed()) {
-      // Evaluate drag
-      groups[activeGroup].slider.classList.remove('tobii__slider--is-dragging')
-
-      const MOVEMENT_X = DRAG.startX - DRAG.x
-      const MOVEMENT_Y = DRAG.startY - DRAG.y
-      const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
-      const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
-
-      if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
-        previous()
-      } else if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
-        groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
-        next()
-      } else if (MOVEMENT_Y > 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
-        close()
-      } else {
-        updateOffset()
       }
     }
   }

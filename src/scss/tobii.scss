@@ -122,6 +122,10 @@
   &--is-dragging [data-type] {
     cursor: grabbing;
   }
+
+  &--is-moving [data-type] {
+    cursor: move;
+  }
 }
 
 /**
@@ -345,7 +349,6 @@
 }
 
 @keyframes spin {
-
   to {
     transform: rotate(360deg);
   }

@@ -1,6 +1,6 @@
 {
   "name": "@midzer/tobii",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "An accessible, open-source lightbox with no dependencies.",
   "main": "./dist/tobii.js",
   "module": "./dist/tobii.module.js",
@@ -18,16 +18,19 @@
     "./": "./"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.3",
-    "cross-env": "^7.0.3",
-    "eslint": "^9.15.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-standard": "^5.0.0",
-    "microbundle": "^0.15.1",
-    "rimraf": "^6.0.1",
-    "sass": "^1.81.0",
-    "standard": "^17.0.0",
-    "stylelint": "^16.10.0"
+    "@eslint/compat": "1.2.3",
+    "cross-env": "7.0.3",
+    "eslint": "9.15.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-config-standard": "17.1.0",
+    "microbundle": "0.15.1",
+    "rimraf": "4.4.1",
+    "sass": "1.81.0",
+    "standard": "17.1.2",
+    "stylelint": "16.10.0"
+  },
+  "overrides": {
+    "eslint": "9.15.0"
   },
   "browserslist": {
     "browser": [
@@ -41,14 +44,15 @@
     ]
   },
   "scripts": {
-    "build": "npm run clean && npm run build:main && npm run build:browser",
+    "build": "npm run distclean && npm run build:main && npm run build:browser",
     "build:main": "cross-env BROWSERSLIST_ENV=main microbundle build --raw --no-sourcemap --name Tobii",
     "build:browser": "cross-env BROWSERSLIST_ENV=browser microbundle build --raw -f iife src/js/browser.js -o dist/tobii.min.js --no-sourcemap --name Tobii",
-    "clean": "rimraf dist",
+    "distclean": "rimraf dist",
+    "clean": "rimraf dist && rimraf node_modules",
     "dev": "microbundle watch --raw --format cjs",
     "dev-modern": "microbundle watch --raw --format esm",
     "lint": "eslint src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run lint && npm run stylelint src"
   },
   "repository": {
     "type": "git",

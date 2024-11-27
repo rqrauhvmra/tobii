@@ -1,7 +1,7 @@
 import _import from "eslint-plugin-import";
 import node from "eslint-plugin-node";
 import promise from "eslint-plugin-promise";
-import standard from "eslint-plugin-standard";
+import standard from "eslint-config-standard";
 import { fixupPluginRules } from "@eslint/compat";
 import globals from "globals";
 
@@ -382,6 +382,6 @@ export default [{
         "import/no-webpack-loader-syntax": "error",
         "node/process-exit-as-throw": "error",
         "promise/param-names": "error",
-        "standard/no-callback-literal": "error",
+        "node/no-callback-literal": "error",
     },
 }];

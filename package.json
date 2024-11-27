@@ -2,11 +2,11 @@
   "name": "@midzer/tobii",
   "version": "2.6.0",
   "description": "An accessible, open-source lightbox with no dependencies.",
-  "main": "dist/tobii.js",
-  "module": "dist/tobii.module.js",
-  "umd:main": "dist/tobii.umd.js",
-  "unpkg": "dist/tobii.min.js",
-  "source": "src/js/index.js",
+  "main": "./dist/tobii.js",
+  "module": "./dist/tobii.module.js",
+  "umd:main": "./dist/tobii.umd.js",
+  "unpkg": "./dist/tobii.min.js",
+  "source": "./src/js/index.js",
   "exports": {
     ".": {
       "browser": "./dist/tobii.module.js",
@@ -58,6 +58,9 @@
     "src",
     "dist"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "keywords": [
     "lightbox",
     "accessible",
@@ -72,5 +75,5 @@
   "bugs": {
     "url": "https://github.com/midzer/tobii/issues"
   },
-  "homepage": "https://github.com/midzer/tobii"
+  "homepage": "https://midzer.github.io/tobii/demo/"
 }

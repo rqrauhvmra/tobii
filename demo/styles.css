@@ -1,0 +1,45 @@
+html {
+  background-color: #f5f5f7;
+}
+
+h1 {
+  margin-top: 0em;
+  text-decoration: underline;
+  text-align: center;
+}
+
+body {
+  max-width: 1024px;
+  margin: 32px auto;
+  padding: 1em 1em;
+  border-radius: 8px;
+  background-color: #bfbfbf;
+  font-family: Tahoma, Verdana, Arial;
+  font-size: 14px;
+  line-height: 1.3;
+  box-shadow: #555 0 1px 3px 0, #555 0 3px 8px 3px;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  padding: 5px 1em;
+}
+
+img {
+  max-width: 200px;
+  height: auto;
+  border: 1px solid #555;
+  box-shadow: 1px 2px 2px 0 #555;
+}
+
+.bold {
+  font-weight: bold;
+}

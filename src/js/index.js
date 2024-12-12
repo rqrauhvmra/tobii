@@ -939,8 +939,8 @@ export default function Tobii (userOptions) {
     event.preventDefault()
     event.stopPropagation()
 
-    DRAG.startX = DRAG.x = event.pageX
-    DRAG.startY = DRAG.y = event.pageY
+    DRAG.startX = DRAG.x = event.clientX
+    DRAG.startY = DRAG.y = event.clientY
     DRAG.distance = 0
 
     // This event is cached to support 2-finger gestures
@@ -948,14 +948,14 @@ export default function Tobii (userOptions) {
 
     if (pointerDownCache.length === 2) {
       const { x, y } = midPoint(
-        pointerDownCache[0].pageX, pointerDownCache[0].pageY,
-        pointerDownCache[1].pageX, pointerDownCache[1].pageY
+        pointerDownCache[0].clientX, pointerDownCache[0].clientY,
+        pointerDownCache[1].clientX, pointerDownCache[1].clientY
       )
 
       DRAG.startX = DRAG.x = x
       DRAG.startY = DRAG.y = y
       DRAG.distance = distance(
-        pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
+        pointerDownCache[0].clientX - pointerDownCache[1].clientX, pointerDownCache[0].clientY - pointerDownCache[1].clientY
       ) / TRANSFORM.scale
     }
   }
@@ -978,11 +978,11 @@ export default function Tobii (userOptions) {
     if (pointerDownCache.length === 2) {
       // 2-pointer horizontal pinch/zoom gesture
       const { x, y } = midPoint(
-        pointerDownCache[0].pageX, pointerDownCache[0].pageY,
-        pointerDownCache[1].pageX, pointerDownCache[1].pageY
+        pointerDownCache[0].clientX, pointerDownCache[0].clientY,
+        pointerDownCache[1].clientX, pointerDownCache[1].clientY
       )
       const scale = distance(
-        pointerDownCache[0].pageX - pointerDownCache[1].pageX, pointerDownCache[0].pageY - pointerDownCache[1].pageY
+        pointerDownCache[0].clientX - pointerDownCache[1].clientX, pointerDownCache[0].clientY - pointerDownCache[1].clientY
       ) / DRAG.distance
 
       zoomPan(
@@ -998,14 +998,14 @@ export default function Tobii (userOptions) {
     }
 
     if (isZoomed()) {
-      const deltaX = event.pageX - DRAG.x
-      const deltaY = event.pageY - DRAG.y
+      const deltaX = event.clientX - DRAG.x
+      const deltaY = event.clientY - DRAG.y
 
       pan(deltaX, deltaY)
     }
 
-    DRAG.x = event.pageX
-    DRAG.y = event.pageY
+    DRAG.x = event.clientX
+    DRAG.y = event.clientY
 
     if (!isZoomed()) {
       // Drag animation
@@ -1042,19 +1042,21 @@ export default function Tobii (userOptions) {
     )
     pointerDownCache.splice(index, 1)
 
-    const MOVEMENT_X = DRAG.startX - DRAG.x
-    const MOVEMENT_Y = DRAG.startY - DRAG.y
-    const MOVEMENT_X_DISTANCE = Math.abs(MOVEMENT_X)
-    const MOVEMENT_Y_DISTANCE = Math.abs(MOVEMENT_Y)
-    if (MOVEMENT_X_DISTANCE || MOVEMENT_Y_DISTANCE) {
+    const x = event.clientX
+    const y = event.clientY
+    const deltaX = DRAG.startX - x
+    const deltaY = DRAG.startY - y
+    const distanceX = Math.abs(deltaX)
+    const distanceY = Math.abs(deltaY)
+    if (distanceX || distanceY) {
       if (!isZoomed()) {
         // Evaluate drag
-        if (MOVEMENT_X < 0 && MOVEMENT_X_DISTANCE > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+        if (deltaX < 0 && distanceX > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
           previous()
-        } else if (MOVEMENT_X > 0 && MOVEMENT_X_DISTANCE > userSettings.threshold &&
+        } else if (deltaX > 0 && distanceX > userSettings.threshold &&
           groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
           next()
-        } else if (MOVEMENT_Y > 0 && MOVEMENT_Y_DISTANCE > userSettings.threshold && userSettings.swipeClose) {
+        } else if (deltaY > 0 && distanceY > userSettings.threshold && userSettings.swipeClose) {
           close()
         } else {
           updateOffset()
@@ -1071,7 +1073,7 @@ export default function Tobii (userOptions) {
         if (isZoomed()) {
           resetZoom()
         } else {
-          zoomPan(MAX_SCALE / 2, event.clientX, event.clientY, 0, 0)
+          zoomPan(MAX_SCALE / 2, x, y, 0, 0)
         }
       } else {
         lastTapTime = currentTime
@@ -1079,10 +1081,10 @@ export default function Tobii (userOptions) {
           // Delayed tap on mobile
           window.setTimeout(() => {
             const { left, top, bottom, right, width } = event.target.getBoundingClientRect()
-            if (DRAG.startY < top || DRAG.startY > bottom || !lastTapTime) return
-            if (DRAG.startX > left && DRAG.startX < left + width / 2) {
+            if (y < top || y > bottom || !lastTapTime) return
+            if (x > left && x < left + width / 2) {
               previous()
-            } else if (DRAG.startX < right && DRAG.startX > right - width / 2) {
+            } else if (x < right && x > right - width / 2) {
               next()
             }
           }, DOUBLE_TAP_TIME)
@@ -1103,7 +1105,7 @@ export default function Tobii (userOptions) {
     const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale)
     zoomPan(
       clamp(newScale, MIN_SCALE, MAX_SCALE),
-      event.pageX, event.pageY,
+      event.clientX, event.clientY,
       0, 0
     )
   }

@@ -1032,7 +1032,8 @@ export default function Tobii (userOptions) {
    *
    */
   const pointerupHandler = (event) => {
-    event.stopPropagation()
+    // Intercept regular click handler
+    if (!pointerDownCache.length) return
 
     groups[activeGroup].slider.classList.remove('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'))
 

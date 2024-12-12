@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.2
+
+### Fixed
+
+- GitHub Action workflow
+
 ## v2.6.1
 
 ### Fixed

@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.6.1
+
+### Fixed
+
+- Single tap cycle on mobile not working in some cases
+- Some elements on demo page were broken
+- Allow Node 18 again
+
 ## v2.6.0
 
 ### New

@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.3
+
+### Fixed
+
+- Next button after 2nd slide regression from 2.6.0
+
 ## v2.6.2
 
 ### Fixed

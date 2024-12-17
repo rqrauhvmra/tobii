@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.6
+
+### Fixed
+
+- Previous release regression
+
 ## v2.6.5
 
 ### Fixed

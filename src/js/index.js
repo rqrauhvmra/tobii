@@ -747,7 +747,9 @@ export default function Tobii (userOptions) {
 
     lastTapTime = 0
 
-    resetZoom()
+    if (isZoomed()) resetZoom()
+
+    TRANSFORM.element = null
   }
 
   /**
@@ -1185,8 +1187,6 @@ export default function Tobii (userOptions) {
     TRANSFORM.translateY = 0
 
     pan(0, 0)
-
-    TRANSFORM.element = null
   }
 
   /**

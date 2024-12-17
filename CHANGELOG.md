@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.5
+
+### Fixed
+
+- Reset zoom in any case on cleanup from 2.6.0
+
 ## v2.6.4
 
 ### Fixed

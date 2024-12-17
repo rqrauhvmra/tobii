@@ -747,7 +747,7 @@ export default function Tobii (userOptions) {
 
     lastTapTime = 0
 
-    if (isZoomed()) resetZoom()
+    resetZoom()
   }
 
   /**

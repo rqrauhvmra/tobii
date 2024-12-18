@@ -30,6 +30,10 @@ class ImageType {
       IMAGE.setAttribute('data-srcset', el.getAttribute('data-srcset'))
     }
 
+    if (el.hasAttribute('data-sizes')) {
+      IMAGE.setAttribute('data-sizes', el.getAttribute('data-sizes'))
+    }
+
     // Add image to figure
     FIGURE.appendChild(IMAGE)
 
@@ -106,12 +110,18 @@ class ImageType {
       FIGURE.style.opacity = '1'
     })
 
-    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
-    IMAGE.removeAttribute('data-src')
-
     if (IMAGE.hasAttribute('data-srcset')) {
       IMAGE.setAttribute('srcset', IMAGE.getAttribute('data-srcset'))
+      IMAGE.removeAttribute('data-srcset')
     }
+
+    if (IMAGE.hasAttribute('data-sizes')) {
+      IMAGE.setAttribute('sizes', IMAGE.getAttribute('data-sizes'))
+      IMAGE.removeAttribute('data-sizes')
+    }
+
+    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'))
+    IMAGE.removeAttribute('data-src')
   }
 
   onLeave (container) {

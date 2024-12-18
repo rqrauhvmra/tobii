@@ -376,6 +376,8 @@ export default function Tobii (userOptions) {
     lightbox = document.createElement('div')
     lightbox.setAttribute('role', 'dialog')
     lightbox.setAttribute('aria-hidden', 'true')
+    lightbox.setAttribute('aria-modal', 'true')
+    lightbox.setAttribute('aria-label', 'Lightbox')
     lightbox.classList.add('tobii')
 
     // Adc theme class

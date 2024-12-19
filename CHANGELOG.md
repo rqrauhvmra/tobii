@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.7.0
+
+### New
+
+- Accessibility improvements
+- Sizes attribute to properly handle responsive images
+- Programmatically set focus on figure elements on slide change
+
+### Fixed
+
+- srcset before src to avoid loading images twice
+- scroll to top when opening lightbox
+
 ## v2.6.6
 
 ### Fixed

@@ -13,6 +13,9 @@ class ImageType {
     const THUMBNAIL = el.querySelector('img')
     const LOADING_INDICATOR = document.createElement('div')
 
+    // Accessibility: allow setting focus programmatically on figure elements.
+    FIGURE.tabIndex = -1
+
     // Add role="group" to figure
     FIGURE.setAttribute('role', 'group')
 

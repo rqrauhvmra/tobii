@@ -820,6 +820,16 @@ export default function Tobii (userOptions) {
     } else if (userSettings.close) {
       closeButton.focus()
     }
+    // If there is a focusable figure element, and we are not displaying the first slide.
+    if (groups[activeGroup].elementsLength > 1 && groups[activeGroup].currentIndex !== 0) {
+      const FOCUSABLE_FIGURE = getFocusableFigure()
+      if (FOCUSABLE_FIGURE) {
+        // The small delay is required to avoid an annoying display bug.
+        setTimeout(() => {
+          FOCUSABLE_FIGURE.focus()
+        }, 100)
+      }
+    }
   }
 
   /**
@@ -879,6 +889,15 @@ export default function Tobii (userOptions) {
   }
 
   /**
+   * Get the programmatically focusable figure of the given element
+   *
+   * @return {Element|null}
+   */
+  const getFocusableFigure = () => {
+    return lightbox.querySelector('.tobii__slide--is-active figure[tabindex="-1"]')
+  }
+
+  /**
    * Keydown event handler
    *
    * @TODO: Remove the deprecated event.keyCode when Edge support event.code and we drop f*cking IE
@@ -898,7 +917,7 @@ export default function Tobii (userOptions) {
         // If the SHIFT key is not being pressed (moving forwards) and the currently
         // focused item is the last one, move the focus to the first focusable item
         // from the slide
-      } else if (!event.shiftKey && FOCUSED_ITEM_INDEX === FOCUSABLE_CHILDREN.length - 1) {
+      } else if (!event.shiftKey && (FOCUSED_ITEM_INDEX === FOCUSABLE_CHILDREN.length - 1 || FOCUSED_ITEM_INDEX === -1)) {
         FOCUSABLE_CHILDREN[0].focus()
         event.preventDefault()
       }

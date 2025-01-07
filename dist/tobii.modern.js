@@ -1,1 +1,1681 @@
-function e(){return e=Object.assign?Object.assign.bind():function(e){for(var t=1;t<arguments.length;t++){var i=arguments[t];for(var r in i)({}).hasOwnProperty.call(i,r)&&(e[r]=i[r])}return e},e.apply(null,arguments)}class t{constructor(){this.figcaptionId=0,this.userSettings=null}init(e,t,i){this.userSettings=i;const r=document.createElement("figure"),n=document.createElement("figcaption"),a=document.createElement("img"),s=e.querySelector("img"),o=document.createElement("div");if(r.tabIndex=-1,r.setAttribute("role","group"),r.style.opacity="0",s&&(a.alt=s.alt||""),a.setAttribute("src",""),a.setAttribute("data-src",e.href),e.hasAttribute("data-srcset")&&a.setAttribute("data-srcset",e.getAttribute("data-srcset")),e.hasAttribute("data-sizes")&&a.setAttribute("data-sizes",e.getAttribute("data-sizes")),r.appendChild(a),this.userSettings.captions){let t;"function"==typeof this.userSettings.captionText?t=this.userSettings.captionText(e):"self"===this.userSettings.captionsSelector&&e.getAttribute(this.userSettings.captionAttribute)?t=e.getAttribute(this.userSettings.captionAttribute):"img"===this.userSettings.captionsSelector&&s&&s.getAttribute(this.userSettings.captionAttribute)&&(t=s.getAttribute(this.userSettings.captionAttribute)),this.userSettings.captionHTML?n.innerHTML=t:n.textContent=t,t&&(n.id=`tobii-figcaption-${this.figcaptionId}`,r.appendChild(n),a.setAttribute("aria-labelledby",n.id),r.setAttribute("aria-label",n.textContent),++this.figcaptionId)}t.appendChild(r),o.className="tobii__loader",o.setAttribute("role","progressbar"),o.setAttribute("aria-label",this.userSettings.loadingIndicatorLabel),t.appendChild(o),t.setAttribute("data-type","image"),t.classList.add("tobii-image")}onPreload(e){this.onLoad(e)}onLoad(e){const t=e.querySelector("img");if(!t.hasAttribute("data-src"))return;const i=e.querySelector("figure"),r=e.querySelector(".tobii__loader");t.addEventListener("load",()=>{e.removeChild(r),i.style.opacity="1"}),t.addEventListener("error",()=>{e.removeChild(r),i.style.opacity="1"}),t.hasAttribute("data-srcset")&&(t.setAttribute("srcset",t.getAttribute("data-srcset")),t.removeAttribute("data-srcset")),t.hasAttribute("data-sizes")&&(t.setAttribute("sizes",t.getAttribute("data-sizes")),t.removeAttribute("data-sizes")),t.setAttribute("src",t.getAttribute("data-src")),t.removeAttribute("data-src")}onLeave(e){}onCleanup(e){}onReset(){this.figcaptionId=0}}class i{constructor(){this.userSettings=null}init(e,t,i){this.userSettings=i;const r=e.hasAttribute("data-target")?e.getAttribute("data-target"):e.getAttribute("href");t.setAttribute("data-HREF",r),e.getAttribute("data-allow")&&t.setAttribute("data-allow",e.getAttribute("data-allow")),e.hasAttribute("data-width")&&t.setAttribute("data-width",`${e.getAttribute("data-width")}`),e.hasAttribute("data-height")&&t.setAttribute("data-height",`${e.getAttribute("data-height")}`),t.setAttribute("data-type","iframe"),t.classList.add("tobii-iframe")}onPreload(e){}onLoad(e){let t=e.querySelector("iframe");const i=document.createElement("div");if(i.className="tobii__loader",i.setAttribute("role","progressbar"),i.setAttribute("aria-label",this.userSettings.loadingIndicatorLabel),e.appendChild(i),null==t){t=document.createElement("iframe");const i=e.getAttribute("data-href");t.setAttribute("frameborder","0"),t.setAttribute("src",i),t.setAttribute("allowfullscreen",""),i.indexOf("youtube.com")>-1?t.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"):i.indexOf("vimeo.com")>-1?t.setAttribute("allow","autoplay; picture-in-picture"):e.hasAttribute("data-allow")&&t.setAttribute("allow",e.getAttribute("data-allow")),e.getAttribute("data-width")&&(t.style.maxWidth=`${e.getAttribute("data-width")}`),e.getAttribute("data-height")&&(t.style.maxHeight=`${e.getAttribute("data-height")}`),t.style.opacity="0",e.appendChild(t),t.addEventListener("load",()=>{t.style.opacity="1";const i=e.querySelector(".tobii__loader");i&&e.removeChild(i)}),t.addEventListener("error",()=>{t.style.opacity="1";const i=e.querySelector(".tobii__loader");i&&e.removeChild(i)})}else t.setAttribute("src",e.getAttribute("data-href"))}onLeave(e){}onCleanup(e){const t=e.querySelector("iframe");t.setAttribute("src",""),t.style.opacity="0"}onReset(){}}class r{constructor(){this.userSettings=null}init(e,t,i){this.userSettings=i;const r=e.hasAttribute("data-target")?e.getAttribute("data-target"):e.getAttribute("href"),n=document.querySelector(r).cloneNode(!0);if(!n)throw new Error(`Ups, I can't find the target ${r}.`);t.appendChild(n),t.setAttribute("data-type","html"),t.classList.add("tobii-html")}onPreload(e){}onLoad(e,t){const i=e.querySelector("video");i&&(i.hasAttribute("data-time")&&i.readyState>0&&(i.currentTime=i.getAttribute("data-time")),this.userSettings.autoplayVideo&&i.play());const r=e.querySelector("audio");r&&this.userSettings.autoplayAudio&&r.play(),e.classList.add("tobii-group-"+t)}onLeave(e){const t=e.querySelector("video");t&&(t.paused||t.pause(),t.readyState>0&&t.setAttribute("data-time",t.currentTime));const i=e.querySelector("audio");i&&(i.paused||i.pause())}onCleanup(e){const t=e.querySelector("video");if(t&&t.readyState>0&&t.readyState<3&&t.duration!==t.currentTime){const i=t.cloneNode(!0);this._removeSources(t),t.load(),t.parentNode.removeChild(t),e.appendChild(i)}}onReset(){}_removeSources(e){const t=e.querySelectorAll("src");t&&t.forEach(e=>{e.setAttribute("src","")})}}class n{constructor(){this.playerId=0,this.PLAYER=[],this.userSettings=null}init(e,t,i){this.userSettings=i;const r=document.createElement("div");t.appendChild(r),this.PLAYER[this.playerId]=new window.YT.Player(r,{host:"https://www.youtube-nocookie.com",height:e.getAttribute("data-height")||"360",width:e.getAttribute("data-width")||"640",videoId:e.getAttribute("data-id"),playerVars:{controls:e.getAttribute("data-controls")||1,rel:0,playsinline:1}}),t.setAttribute("data-player",this.playerId),t.setAttribute("data-type","youtube"),t.classList.add("tobii-youtube"),this.playerId++}onPreload(e){}onLoad(e){this.userSettings.autoplayVideo&&this.PLAYER[e.getAttribute("data-player")].playVideo()}onLeave(e){1===this.PLAYER[e.getAttribute("data-player")].getPlayerState()&&this.PLAYER[e.getAttribute("data-player")].pauseVideo()}onCleanup(e){1===this.PLAYER[e.getAttribute("data-player")].getPlayerState()&&this.PLAYER[e.getAttribute("data-player")].pauseVideo()}onReset(){}}function a(s){const o={image:new t,html:new r,iframe:new i,youtube:new n},l=['a[href]:not([tabindex^="-"]):not([inert])','area[href]:not([tabindex^="-"]):not([inert])',"input:not([disabled]):not([inert])","select:not([disabled]):not([inert])","textarea:not([disabled]):not([inert])","button:not([disabled]):not([inert])",'iframe:not([tabindex^="-"]):not([inert])','audio:not([tabindex^="-"]):not([inert])','video:not([tabindex^="-"]):not([inert])','[contenteditable]:not([tabindex^="-"]):not([inert])','[tabindex]:not([tabindex^="-"]):not([inert])'];let d={};const c=[],u={gallery:[],slider:null,sliderElements:[],elementsLength:0,currentIndex:0,x:0};let b=null,p=null,h=null,g=null,m=null,y=null,f=null,w=!1,v={},A=null,x=[],E=0;const L={element:null,originX:0,originY:0,translateX:0,translateY:0,scale:1},_={startX:0,startY:0,x:0,y:0,distance:0},I=e=>{if(null===document.querySelector('[data-type="youtube"]')||w)C(e);else{if(null===document.getElementById("iframe_api")){const e=document.createElement("script"),t=document.getElementsByTagName("script")[0];e.id="iframe_api",e.src="https://www.youtube.com/iframe_api",t.parentNode.insertBefore(e,t)}-1===c.indexOf(e)&&c.push(e),window.onYouTubePlayerAPIReady=()=>{c.forEach(e=>{C(e)}),w=!0}}},S=e=>e.hasAttribute("data-group")?e.getAttribute("data-group"):"default",C=e=>{const t=S(e);if(Object.prototype.hasOwnProperty.call(v,t)||(v[t]=JSON.parse(JSON.stringify(u)),v[t].slider=document.createElement("div"),v[t].slider.className="tobii__slider",v[t].slider.setAttribute("aria-hidden","true"),b.appendChild(v[t].slider)),-1!==v[t].gallery.indexOf(e))throw new Error("Ups, element already added.");{if(v[t].gallery.push(e),v[t].elementsLength++,d.zoom&&e.querySelector("img")&&"false"!==e.getAttribute("data-zoom")||"true"===e.getAttribute("data-zoom")){const t=document.createElement("div");t.className="tobii-zoom__icon",t.innerHTML=d.zoomText,e.classList.add("tobii-zoom"),e.appendChild(t)}e.addEventListener("click",H);const i=T(e),r=document.createElement("div"),n=document.createElement("div");r.className="tobii__slide",r.style.position="absolute",r.style.left=100*v[t].x+"%",r.setAttribute("aria-hidden","true"),i.init(e,n,d),r.appendChild(n),v[t].slider.appendChild(r),v[t].sliderElements.push(r),++v[t].x,de()&&t===A&&(se(),oe())}},Y=e=>{const t=S(e);if(-1===v[t].gallery.indexOf(e))throw new Error(`Ups, I can't find a slide for the element ${e}.`);{const i=v[t].gallery.indexOf(e),r=v[t].sliderElements[i];if(de()&&t===A&&i===v[t].currentIndex){if(1===v[t].elementsLength)throw q(),new Error("Ups, I've closed. There are no slides more to show.");0===v[t].currentIndex?O():N(),se(),oe()}if(v[t].gallery.splice(v[t].gallery.indexOf(e)),v[t].sliderElements.splice(v[t].gallery.indexOf(e)),v[t].elementsLength--,--v[t].x,d.zoom&&e.querySelector(".tobii-zoom__icon")){const t=e.querySelector(".tobii-zoom__icon");t.parentNode.classList.remove("tobii-zoom"),t.parentNode.removeChild(t)}e.removeEventListener("click",H),r.parentNode.removeChild(r)}},T=e=>{const t=e.getAttribute("data-type");return void 0!==o[t]?o[t]:(e.hasAttribute("data-type")&&console.log("Unknown lightbox element type: "+t),o.image)},X=(e=0)=>{if(de())throw new Error("Ups, I'm aleady open.");if(-1===e||e>=v[A].elementsLength)throw new Error(`Ups, I can't find slide ${e}.`);document.documentElement.classList.add("tobii-is-open"),document.body.classList.add("tobii-is-open"),document.body.classList.add("tobii-is-open-"+A),se(),d.close||(g.disabled=!1,g.setAttribute("aria-hidden","true")),y=document.activeElement;const t=window.location.href;window.history.pushState({tobii:"close"},"Image",t),v[A].currentIndex=e,ne(),M(v[A].currentIndex),v[A].slider.setAttribute("aria-hidden","false"),b.setAttribute("aria-hidden","false"),oe(),z(v[A].currentIndex+1),z(v[A].currentIndex-1),v[A].slider.classList.add("tobii__slider--animate");const i=new window.CustomEvent("open",{detail:{group:A}});b.dispatchEvent(i)},q=()=>{if(!de())throw new Error("Ups, I'm already closed.");document.documentElement.classList.remove("tobii-is-open"),document.body.classList.remove("tobii-is-open"),document.body.classList.remove("tobii-is-open-"+A),ae(),null!==window.history.state&&"close"===window.history.state.tobii&&window.history.back(),y.focus(),$(v[A].currentIndex),k(v[A].currentIndex),b.setAttribute("aria-hidden","true"),v[A].slider.setAttribute("aria-hidden","true"),v[A].currentIndex=0,v[A].slider.classList.remove("tobii__slider--animate");const e=new window.CustomEvent("close",{detail:{group:A}});b.dispatchEvent(e)},z=e=>{if(void 0===v[A].sliderElements[e])return;const t=v[A].sliderElements[e].querySelector("[data-type]");T(t).onPreload(t)},M=e=>{if(void 0===v[A].sliderElements[e])return;const t=v[A].sliderElements[e].querySelector("[data-type]"),i=T(t);v[A].sliderElements[e].classList.add("tobii__slide--is-active"),v[A].sliderElements[e].setAttribute("aria-hidden","false"),i.onLoad(t,A)},N=()=>{if(!de())throw new Error("Ups, I'm closed.");v[A].currentIndex>0&&($(v[A].currentIndex),M(--v[A].currentIndex),oe("left"),k(v[A].currentIndex+1),z(v[A].currentIndex-1));const e=new window.CustomEvent("previous",{detail:{group:A}});b.dispatchEvent(e)},O=()=>{if(!de())throw new Error("Ups, I'm closed.");v[A].currentIndex<v[A].elementsLength-1&&($(v[A].currentIndex),M(++v[A].currentIndex),oe("right"),k(v[A].currentIndex-1),z(v[A].currentIndex+1));const e=new window.CustomEvent("next",{detail:{group:A}});b.dispatchEvent(e)},P=e=>{if(de())throw new Error("Ups, I'm open.");if(!e)throw new Error("Ups, no group specified.");if(e&&!Object.prototype.hasOwnProperty.call(v,e))throw new Error(`Ups, I don't have a group called "${e}".`);A=e},$=e=>{if(void 0===v[A].sliderElements[e])return;const t=v[A].sliderElements[e].querySelector("[data-type]"),i=T(t);v[A].sliderElements[e].classList.remove("tobii__slide--is-active"),v[A].sliderElements[e].setAttribute("aria-hidden","true"),i.onLeave(t)},k=e=>{if(void 0===v[A].sliderElements[e])return;const t=v[A].sliderElements[e].querySelector("[data-type]");T(t).onCleanup(t),_.startX=0,_.startY=0,_.x=0,_.y=0,_.distance=0,E=0,Q()&&re(),L.element=null},R=()=>{f=-v[A].currentIndex*b.offsetWidth,v[A].slider.style.transform=`translate(${f}px, 0)`},U=()=>{R()},H=e=>{e.preventDefault(),A=S(e.currentTarget),X(v[A].gallery.indexOf(e.currentTarget))},D=e=>{e.target===p?N():e.target===h?O():(e.target===g||e.target.classList.contains("tobii__slide")&&d.docClose)&&q(),e.stopPropagation()},B=e=>{const t=Array.prototype.slice.call(b.querySelectorAll(`.tobii__btn:not([disabled]), .tobii__slide--is-active ${l.join(", .tobii__slide--is-active ")}`)).filter(e=>!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)),i=t.indexOf(document.activeElement);9===e.keyCode||"Tab"===e.code?e.shiftKey&&0===i?(t[t.length-1].focus(),e.preventDefault()):e.shiftKey||i!==t.length-1&&-1!==i||(t[0].focus(),e.preventDefault()):27===e.keyCode||"Escape"===e.code?(e.preventDefault(),q()):37===e.keyCode||"ArrowLeft"===e.code?(e.preventDefault(),N()):39!==e.keyCode&&"ArrowRight"!==e.code||(e.preventDefault(),O())},V=()=>{x=[],R(),v[A].slider.classList.remove("tobii__slider--is-"+(Q()?"moving":"dragging"))},j=e=>{if(!ue(e.target)&&(e.preventDefault(),e.stopPropagation(),_.startX=_.x=e.clientX,_.startY=_.y=e.clientY,_.distance=0,x.push(e),2===x.length)){const{x:e,y:t}=ie(x[0].clientX,x[0].clientY,x[1].clientX,x[1].clientY);_.startX=_.x=e,_.startY=_.y=t,_.distance=te(x[0].clientX-x[1].clientX,x[0].clientY-x[1].clientY)/L.scale}},W=e=>{if(!x.length)return;v[A].slider.classList.add("tobii__slider--is-"+(Q()?"moving":"dragging"));const t=x.findIndex(t=>t.pointerId===e.pointerId);if(x[t]=e,2===x.length){const{x:e,y:t}=ie(x[0].clientX,x[0].clientY,x[1].clientX,x[1].clientY),i=te(x[0].clientX-x[1].clientX,x[0].clientY-x[1].clientY)/_.distance;return ee(F(i,1,4),e,t,e-_.x,t-_.y),_.x=e,void(_.y=t)}if(Q()&&Z(e.clientX-_.x,e.clientY-_.y),_.x=e.clientX,_.y=e.clientY,!Q()){const e=_.startX-_.x,t=_.startY-_.y;if(te(e,t)<10)return;Math.abs(e)>Math.abs(t)&&v[A].elementsLength>1?v[A].slider.style.transform=`translate(${f-Math.round(e)}px, 0)`:d.swipeClose&&(v[A].slider.style.transform=`translate(${f}px, -${Math.round(t)}px)`)}},G=e=>{if(!x.length)return;v[A].slider.classList.remove("tobii__slider--is-"+(Q()?"moving":"dragging"));const t=x.findIndex(t=>t.pointerId===e.pointerId);x.splice(t,1);const i=e.clientX,r=e.clientY,n=_.startX-i,a=_.startY-r,s=Math.abs(n),o=Math.abs(a);if(s||o)Q()||(n<0&&s>d.threshold&&v[A].currentIndex>0?N():n>0&&s>d.threshold&&v[A].currentIndex!==v[A].elementsLength-1?O():a>0&&o>d.threshold&&d.swipeClose?q():R());else{const t=(new Date).getTime(),n=t-E;n<500&&n>100?(e.preventDefault(),E=0,Q()?re():ee(2,i,r,0,0)):(E=t,ce()&&window.setTimeout(()=>{const{left:t,top:n,bottom:a,right:s,width:o}=e.target.getBoundingClientRect();r<n||r>a||!E||(i>t&&i<t+o/2?N():i<s&&i>s-o/2&&O())},500))}},J=e=>{const t=Math.sign(e.deltaY)>0?-1:1;(Q()||t)&&(e.preventDefault(),ee(F(L.scale+t/(10/L.scale),1,4),e.clientX,e.clientY,0,0))},K=(e,t)=>{const{element:i,scale:r,originX:n,originY:a}=L,s="x"===e,o=s?n:a,l=s?"offsetWidth":"offsetHeight",d=i.parentNode[l],c=i[l],u=i.getBoundingClientRect(),b=(o-c/2)*(r-1),p=Math.max(0,Math.round(s?u.width:u.height)-d),h=Math.round(p/2);return F(t,0-h+b,h+b)},F=(e,t,i)=>Math.max(Math.min(e,i),t),Q=()=>1!==L.scale,Z=(e,t)=>{0!==e&&(L.translateX=K("x",L.translateX+e)),0!==t&&(L.translateY=K("y",L.translateY+t));const{element:i,originX:r,originY:n,translateX:a,translateY:s,scale:o}=L;i.style.transformOrigin=`${r}px ${n}px`,i.style.transform=`translate(${a}px, ${s}px) scale(${o})`},ee=(e,t,i,r,n)=>{L.element||(L.element=b.querySelector(".tobii__slide--is-active img"));const{left:a,top:s}=L.element.getBoundingClientRect(),o=(i-s)/L.scale;L.originX=(t-a)/L.scale,L.originY=o,L.scale=e,Z(r,n)},te=(e,t)=>Math.hypot(e,t),ie=(e,t,i,r)=>({x:(e+i)/2,y:(t+r)/2}),re=()=>{L.scale=1,L.originX=0,L.originY=0,L.translateX=0,L.translateY=0,Z(0,0)},ne=()=>{d.keyboard&&window.addEventListener("keydown",B),window.addEventListener("resize",U),window.addEventListener("popstate",q),be("click",D),d.draggable&&(be("pointerdown",j),be("pointermove",W),be("pointerup",G),be("pointercancel",V),be("pointerout",V),be("pointerleave",V),be("contextmenu",V)),be("wheel",J)},ae=()=>{d.keyboard&&window.removeEventListener("keydown",B),window.removeEventListener("resize",U),window.removeEventListener("popstate",q),pe("click",D),d.draggable&&(pe("pointerdown",j),pe("pointermove",W),pe("pointerup",G),pe("pointercancel",V),pe("pointerout",V),pe("pointerleave",V),pe("contextmenu",V)),pe("wheel",J)},se=()=>{d.draggable&&!v[A].slider.classList.contains("tobii__slider--is-draggable")&&v[A].slider.classList.add("tobii__slider--is-draggable"),!d.nav||1===v[A].elementsLength||"auto"===d.nav&&ce()?(p.setAttribute("aria-hidden","true"),p.disabled=!0,h.setAttribute("aria-hidden","true"),h.disabled=!0):(p.setAttribute("aria-hidden","false"),p.disabled=!1,h.setAttribute("aria-hidden","false"),h.disabled=!1),m.setAttribute("aria-hidden",d.counter&&1!==v[A].elementsLength?"false":"true")},oe=(e=null)=>{R(),m.textContent=`${v[A].currentIndex+1}/${v[A].elementsLength}`,(e=>{if((!0===d.nav||"auto"===d.nav)&&!ce()&&v[A].elementsLength>1?(p.setAttribute("aria-hidden","true"),p.disabled=!0,h.setAttribute("aria-hidden","true"),h.disabled=!0,1===v[A].elementsLength?d.close&&g.focus():0===v[A].currentIndex?(h.setAttribute("aria-hidden","false"),h.disabled=!1,h.focus()):v[A].currentIndex===v[A].elementsLength-1?(p.setAttribute("aria-hidden","false"),p.disabled=!1,p.focus()):(p.setAttribute("aria-hidden","false"),p.disabled=!1,h.setAttribute("aria-hidden","false"),h.disabled=!1,"left"===e?p.focus():h.focus())):d.close&&g.focus(),v[A].elementsLength>1&&0!==v[A].currentIndex){const e=b.querySelector('.tobii__slide--is-active figure[tabindex="-1"]');e&&setTimeout(()=>{e.focus()},100)}})(e)},le=()=>{de()&&q(),Object.entries(v).forEach(e=>{e[1].gallery.forEach(e=>{Y(e)})}),v={},A=null;for(const e in o)o[e].onReset()},de=()=>"false"===b.getAttribute("aria-hidden"),ce=()=>"ontouchstart"in window,ue=e=>-1!==["TEXTAREA","OPTION","INPUT","SELECT"].indexOf(e.nodeName)||e===p||e===h||e===g,be=(e,t)=>{b.addEventListener(e,t)},pe=(e,t)=>{b.removeEventListener(e,t)};return(t=>{if(document.querySelector("div.tobii"))return void console.log("Multiple lightbox instances not supported.");d=(t=>e({},{selector:".lightbox",captions:!0,captionsSelector:"img",captionAttribute:"alt",captionText:null,captionHTML:!1,nav:"auto",navText:['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>'],navLabel:["Previous image","Next image"],close:!0,closeText:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>',closeLabel:"Close lightbox",loadingIndicatorLabel:"Image loading",counter:!0,download:!1,downloadText:"",downloadLabel:"Download image",keyboard:!0,zoom:!0,zoomText:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',docClose:!0,swipeClose:!0,hideScrollbar:!0,draggable:!0,threshold:100,rtl:!1,loop:!1,autoplayVideo:!1,modal:!1,theme:"tobii--theme-default"},t))(t),b||(b=document.createElement("div"),b.setAttribute("role","dialog"),b.setAttribute("aria-hidden","true"),b.setAttribute("aria-modal","true"),b.setAttribute("aria-label","Lightbox"),b.classList.add("tobii"),b.classList.add(d.theme),p=document.createElement("button"),p.className="tobii__btn tobii__btn--previous",p.setAttribute("type","button"),p.setAttribute("aria-label",d.navLabel[0]),p.innerHTML=d.navText[0],b.appendChild(p),h=document.createElement("button"),h.className="tobii__btn tobii__btn--next",h.setAttribute("type","button"),h.setAttribute("aria-label",d.navLabel[1]),h.innerHTML=d.navText[1],b.appendChild(h),g=document.createElement("button"),g.className="tobii__btn tobii__btn--close",g.setAttribute("type","button"),g.setAttribute("aria-label",d.closeLabel),g.innerHTML=d.closeText,b.appendChild(g),m=document.createElement("div"),m.className="tobii__counter",b.appendChild(m),document.body.appendChild(b));const i=document.querySelectorAll(d.selector);if(!i)throw new Error(`Ups, I can't find the selector ${d.selector} on this website.`);const r=[];i.forEach(e=>{const t=e.hasAttribute("data-group")?e.getAttribute("data-group"):"default";let i=e.href;e.hasAttribute("data-target")&&(i=e.getAttribute("data-target")),i+="__"+t,void 0!==r[i]?e.addEventListener("click",e=>{P(t),X(),e.preventDefault()}):(r[i]=1,I(e))})})(s),a.open=X,a.previous=N,a.next=O,a.close=q,a.add=I,a.remove=Y,a.reset=le,a.destroy=()=>{le(),b.parentNode.removeChild(b)},a.isOpen=de,a.slidesIndex=()=>v[A].currentIndex,a.select=e=>{const t=v[A].currentIndex;if(!de())throw new Error("Ups, I'm closed.");if(de()){if(!e&&0!==e)throw new Error("Ups, no slide specified.");if(e===v[A].currentIndex)throw new Error(`Ups, slide ${e} is already selected.`);if(-1===e||e>=v[A].elementsLength)throw new Error(`Ups, I can't find slide ${e}.`)}v[A].currentIndex=e,$(t),M(e),e<t&&(oe("left"),k(t),z(e-1)),e>t&&(oe("right"),k(t),z(e+1))},a.slidesCount=()=>v[A].elementsLength,a.selectGroup=P,a.currentGroup=()=>A,a.on=be,a.off=pe,a}export{a as default};
+function _extends() {
+  return _extends = Object.assign ? Object.assign.bind() : function (n) {
+    for (var e = 1; e < arguments.length; e++) {
+      var t = arguments[e];
+      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
+    }
+    return n;
+  }, _extends.apply(null, arguments);
+}
+
+class ImageType {
+  constructor() {
+    this.figcaptionId = 0;
+    this.userSettings = null;
+  }
+  init(el, container, userSettings) {
+    this.userSettings = userSettings;
+    const FIGURE = document.createElement('figure');
+    const FIGCAPTION = document.createElement('figcaption');
+    const IMAGE = document.createElement('img');
+    const THUMBNAIL = el.querySelector('img');
+    const LOADING_INDICATOR = document.createElement('div');
+
+    // Accessibility: allow setting focus programmatically on figure elements.
+    FIGURE.tabIndex = -1;
+
+    // Add role="group" to figure
+    FIGURE.setAttribute('role', 'group');
+
+    // Hide figure until the image is loaded
+    FIGURE.style.opacity = '0';
+    if (THUMBNAIL) {
+      IMAGE.alt = THUMBNAIL.alt || '';
+    }
+    IMAGE.setAttribute('src', '');
+    IMAGE.setAttribute('data-src', el.href);
+    if (el.hasAttribute('data-srcset')) {
+      IMAGE.setAttribute('data-srcset', el.getAttribute('data-srcset'));
+    }
+    if (el.hasAttribute('data-sizes')) {
+      IMAGE.setAttribute('data-sizes', el.getAttribute('data-sizes'));
+    }
+
+    // Add image to figure
+    FIGURE.appendChild(IMAGE);
+
+    // Create figcaption
+    if (this.userSettings.captions) {
+      let captionContent;
+      if (typeof this.userSettings.captionText === 'function') {
+        captionContent = this.userSettings.captionText(el);
+      } else if (this.userSettings.captionsSelector === 'self' && el.getAttribute(this.userSettings.captionAttribute)) {
+        captionContent = el.getAttribute(this.userSettings.captionAttribute);
+      } else if (this.userSettings.captionsSelector === 'img' && THUMBNAIL && THUMBNAIL.getAttribute(this.userSettings.captionAttribute)) {
+        captionContent = THUMBNAIL.getAttribute(this.userSettings.captionAttribute);
+      }
+      if (this.userSettings.captionHTML) {
+        FIGCAPTION.innerHTML = captionContent;
+      } else {
+        FIGCAPTION.textContent = captionContent;
+      }
+      if (captionContent) {
+        FIGCAPTION.id = `tobii-figcaption-${this.figcaptionId}`;
+        FIGURE.appendChild(FIGCAPTION);
+        IMAGE.setAttribute('aria-labelledby', FIGCAPTION.id);
+
+        // Add aria-label to the figure containing the caption content
+        FIGURE.setAttribute('aria-label', FIGCAPTION.textContent);
+        ++this.figcaptionId;
+      }
+    }
+
+    // Add figure to container
+    container.appendChild(FIGURE);
+
+    // Create loading indicator
+    LOADING_INDICATOR.className = 'tobii__loader';
+    LOADING_INDICATOR.setAttribute('role', 'progressbar');
+    LOADING_INDICATOR.setAttribute('aria-label', this.userSettings.loadingIndicatorLabel);
+
+    // Add loading indicator to container
+    container.appendChild(LOADING_INDICATOR);
+
+    // Register type
+    container.setAttribute('data-type', 'image');
+    container.classList.add('tobii-image');
+  }
+  onPreload(container) {
+    // Same as preload
+    this.onLoad(container);
+  }
+  onLoad(container) {
+    const IMAGE = container.querySelector('img');
+    if (!IMAGE.hasAttribute('data-src')) {
+      return;
+    }
+    const FIGURE = container.querySelector('figure');
+    const LOADING_INDICATOR = container.querySelector('.tobii__loader');
+    IMAGE.addEventListener('load', () => {
+      container.removeChild(LOADING_INDICATOR);
+      FIGURE.style.opacity = '1';
+    });
+    IMAGE.addEventListener('error', () => {
+      container.removeChild(LOADING_INDICATOR);
+      FIGURE.style.opacity = '1';
+    });
+    if (IMAGE.hasAttribute('data-srcset')) {
+      IMAGE.setAttribute('srcset', IMAGE.getAttribute('data-srcset'));
+      IMAGE.removeAttribute('data-srcset');
+    }
+    if (IMAGE.hasAttribute('data-sizes')) {
+      IMAGE.setAttribute('sizes', IMAGE.getAttribute('data-sizes'));
+      IMAGE.removeAttribute('data-sizes');
+    }
+    IMAGE.setAttribute('src', IMAGE.getAttribute('data-src'));
+    IMAGE.removeAttribute('data-src');
+  }
+  onLeave(container) {
+    // Nothing
+  }
+  onCleanup(container) {
+    // Nothing
+  }
+  onReset() {
+    this.figcaptionId = 0;
+  }
+}
+
+class IframeType {
+  constructor() {
+    this.userSettings = null;
+  }
+  init(el, container, userSettings) {
+    this.userSettings = userSettings;
+    const HREF = el.hasAttribute('data-target') ? el.getAttribute('data-target') : el.getAttribute('href');
+    container.setAttribute('data-HREF', HREF);
+    if (el.getAttribute('data-allow')) {
+      container.setAttribute('data-allow', el.getAttribute('data-allow'));
+    }
+    if (el.hasAttribute('data-width')) {
+      container.setAttribute('data-width', `${el.getAttribute('data-width')}`);
+    }
+    if (el.hasAttribute('data-height')) {
+      container.setAttribute('data-height', `${el.getAttribute('data-height')}`);
+    }
+
+    // dont create empty iframes here - very slow
+
+    // Register type
+    container.setAttribute('data-type', 'iframe');
+    container.classList.add('tobii-iframe');
+  }
+  onPreload(container) {
+    // Nothing
+  }
+  onLoad(container) {
+    let IFRAME = container.querySelector('iframe');
+
+    // Create loading indicator
+    const LOADING_INDICATOR = document.createElement('div');
+    LOADING_INDICATOR.className = 'tobii__loader';
+    LOADING_INDICATOR.setAttribute('role', 'progressbar');
+    LOADING_INDICATOR.setAttribute('aria-label', this.userSettings.loadingIndicatorLabel);
+    container.appendChild(LOADING_INDICATOR);
+    if (IFRAME == null) {
+      // create iframe
+      IFRAME = document.createElement('iframe');
+      const HREF = container.getAttribute('data-href');
+      IFRAME.setAttribute('frameborder', '0');
+      IFRAME.setAttribute('src', HREF);
+      IFRAME.setAttribute('allowfullscreen', '');
+
+      // set allow parameters
+      if (HREF.indexOf('youtube.com') > -1) {
+        IFRAME.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      } else if (HREF.indexOf('vimeo.com') > -1) {
+        IFRAME.setAttribute('allow', 'autoplay; picture-in-picture');
+      } else if (container.hasAttribute('data-allow')) {
+        IFRAME.setAttribute('allow', container.getAttribute('data-allow'));
+      }
+      if (container.getAttribute('data-width')) {
+        IFRAME.style.maxWidth = `${container.getAttribute('data-width')}`;
+      }
+      if (container.getAttribute('data-height')) {
+        IFRAME.style.maxHeight = `${container.getAttribute('data-height')}`;
+      }
+
+      // Hide until loaded
+      IFRAME.style.opacity = '0';
+
+      // Add iframe to container
+      container.appendChild(IFRAME);
+      IFRAME.addEventListener('load', () => {
+        IFRAME.style.opacity = '1';
+        const LOADING_INDICATOR = container.querySelector('.tobii__loader');
+        if (LOADING_INDICATOR) {
+          container.removeChild(LOADING_INDICATOR);
+        }
+      });
+      IFRAME.addEventListener('error', () => {
+        IFRAME.style.opacity = '1';
+        const LOADING_INDICATOR = container.querySelector('.tobii__loader');
+        if (LOADING_INDICATOR) {
+          container.removeChild(LOADING_INDICATOR);
+        }
+      });
+    } else {
+      // was already created
+      IFRAME.setAttribute('src', container.getAttribute('data-href'));
+    }
+  }
+  onLeave(container) {
+    // Nothing
+  }
+  onCleanup(container) {
+    const IFRAME = container.querySelector('iframe');
+    IFRAME.setAttribute('src', '');
+    IFRAME.style.opacity = '0';
+  }
+  onReset() {
+    // Nothing
+  }
+}
+
+class HtmlType {
+  constructor() {
+    this.userSettings = null;
+  }
+  init(el, container, userSettings) {
+    this.userSettings = userSettings;
+    const TARGET_SELECTOR = el.hasAttribute('data-target') ? el.getAttribute('data-target') : el.getAttribute('href');
+    const TARGET = document.querySelector(TARGET_SELECTOR).cloneNode(true);
+    if (!TARGET) {
+      throw new Error(`Ups, I can't find the target ${TARGET_SELECTOR}.`);
+    }
+
+    // Add content to container
+    container.appendChild(TARGET);
+
+    // Register type
+    container.setAttribute('data-type', 'html');
+    container.classList.add('tobii-html');
+  }
+  onPreload(container) {
+    // Nothing
+  }
+  onLoad(container, group) {
+    const VIDEO = container.querySelector('video');
+    if (VIDEO) {
+      if (VIDEO.hasAttribute('data-time') && VIDEO.readyState > 0) {
+        // Continue where video was stopped
+        VIDEO.currentTime = VIDEO.getAttribute('data-time');
+      }
+      if (this.userSettings.autoplayVideo) {
+        // Start playback (and loading if necessary)
+        VIDEO.play();
+      }
+    }
+    const audio = container.querySelector('audio');
+    if (audio) {
+      if (this.userSettings.autoplayAudio) {
+        // Start playback (and loading if necessary)
+        audio.play();
+      }
+    }
+    container.classList.add('tobii-group-' + group);
+  }
+  onLeave(container) {
+    const VIDEO = container.querySelector('video');
+    if (VIDEO) {
+      if (!VIDEO.paused) {
+        // Stop if video is playing
+        VIDEO.pause();
+      }
+
+      // Backup currentTime (needed for revisit)
+      if (VIDEO.readyState > 0) {
+        VIDEO.setAttribute('data-time', VIDEO.currentTime);
+      }
+    }
+    const audio = container.querySelector('audio');
+    if (audio) {
+      if (!audio.paused) {
+        // Stop if is playing
+        audio.pause();
+      }
+    }
+  }
+  onCleanup(container) {
+    const VIDEO = container.querySelector('video');
+    if (VIDEO) {
+      if (VIDEO.readyState > 0 && VIDEO.readyState < 3 && VIDEO.duration !== VIDEO.currentTime) {
+        // Some data has been loaded but not the whole package.
+        // In order to save bandwidth, stop downloading as soon as possible.
+        const VIDEO_CLONE = VIDEO.cloneNode(true);
+        this._removeSources(VIDEO);
+        VIDEO.load();
+        VIDEO.parentNode.removeChild(VIDEO);
+        container.appendChild(VIDEO_CLONE);
+      }
+    }
+  }
+  onReset() {
+    // Nothing
+  }
+
+  /**
+   * Remove all `src` attributes
+   *
+   * @param {HTMLElement} el - Element to remove all `src` attributes
+   */
+  _removeSources(el) {
+    const SOURCES = el.querySelectorAll('src');
+    if (SOURCES) {
+      SOURCES.forEach(source => {
+        source.setAttribute('src', '');
+      });
+    }
+  }
+}
+
+class YoutubeType {
+  constructor() {
+    this.playerId = 0;
+    this.PLAYER = [];
+    this.userSettings = null;
+  }
+  init(el, container, userSettings) {
+    this.userSettings = userSettings;
+    const IFRAME_PLACEHOLDER = document.createElement('div');
+
+    // Add iframePlaceholder to container
+    container.appendChild(IFRAME_PLACEHOLDER);
+    this.PLAYER[this.playerId] = new window.YT.Player(IFRAME_PLACEHOLDER, {
+      host: 'https://www.youtube-nocookie.com',
+      height: el.getAttribute('data-height') || '360',
+      width: el.getAttribute('data-width') || '640',
+      videoId: el.getAttribute('data-id'),
+      playerVars: {
+        controls: el.getAttribute('data-controls') || 1,
+        rel: 0,
+        playsinline: 1
+      }
+    });
+
+    // Set player ID
+    container.setAttribute('data-player', this.playerId);
+
+    // Register type
+    container.setAttribute('data-type', 'youtube');
+    container.classList.add('tobii-youtube');
+    this.playerId++;
+  }
+  onPreload(container) {
+    // Nothing
+  }
+  onLoad(container) {
+    if (this.userSettings.autoplayVideo) {
+      this.PLAYER[container.getAttribute('data-player')].playVideo();
+    }
+  }
+  onLeave(container) {
+    if (this.PLAYER[container.getAttribute('data-player')].getPlayerState() === 1) {
+      this.PLAYER[container.getAttribute('data-player')].pauseVideo();
+    }
+  }
+  onCleanup(container) {
+    if (this.PLAYER[container.getAttribute('data-player')].getPlayerState() === 1) {
+      this.PLAYER[container.getAttribute('data-player')].pauseVideo();
+    }
+  }
+  onReset() {
+    // Nothing
+  }
+}
+
+function Tobii(userOptions) {
+  /**
+   * Global variables
+   *
+   */
+  const SUPPORTED_ELEMENTS = {
+    image: new ImageType(),
+    // default
+    html: new HtmlType(),
+    iframe: new IframeType(),
+    youtube: new YoutubeType()
+  };
+  const FOCUSABLE_ELEMENTS = ['a[href]:not([tabindex^="-"]):not([inert])', 'area[href]:not([tabindex^="-"]):not([inert])', 'input:not([disabled]):not([inert])', 'select:not([disabled]):not([inert])', 'textarea:not([disabled]):not([inert])', 'button:not([disabled]):not([inert])', 'iframe:not([tabindex^="-"]):not([inert])', 'audio:not([tabindex^="-"]):not([inert])', 'video:not([tabindex^="-"]):not([inert])', '[contenteditable]:not([tabindex^="-"]):not([inert])', '[tabindex]:not([tabindex^="-"]):not([inert])'];
+  let userSettings = {};
+  const WAITING_ELS = [];
+  const GROUP_ATTS = {
+    gallery: [],
+    slider: null,
+    sliderElements: [],
+    elementsLength: 0,
+    currentIndex: 0,
+    x: 0
+  };
+  let lightbox = null;
+  let prevButton = null;
+  let nextButton = null;
+  let closeButton = null;
+  let counter = null;
+  let lastFocus = null;
+  let offset = null;
+  let isYouTubeDependencyLoaded = false;
+  let groups = {};
+  let activeGroup = null;
+  let pointerDownCache = [];
+  let lastTapTime = 0;
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 4;
+  const DOUBLE_TAP_TIME = 500; // milliseconds
+  const SCALE_SENSITIVITY = 10;
+  const TRANSFORM = {
+    element: null,
+    originX: 0,
+    originY: 0,
+    translateX: 0,
+    translateY: 0,
+    scale: MIN_SCALE
+  };
+  const DRAG = {
+    startX: 0,
+    startY: 0,
+    x: 0,
+    y: 0,
+    distance: 0
+  };
+
+  /**
+   * Merge default options with user options
+   *
+   * @param {Object} userOptions - Optional user options
+   * @returns {Object} - Custom options
+   */
+  const mergeOptions = userOptions => {
+    // Default options
+    const OPTIONS = {
+      selector: '.lightbox',
+      captions: true,
+      captionsSelector: 'img',
+      captionAttribute: 'alt',
+      captionText: null,
+      captionHTML: false,
+      nav: 'auto',
+      navText: ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="15 6 9 12 15 18" /></svg>', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="9 6 15 12 9 18" /></svg>'],
+      navLabel: ['Previous image', 'Next image'],
+      close: true,
+      closeText: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>',
+      closeLabel: 'Close lightbox',
+      loadingIndicatorLabel: 'Image loading',
+      counter: true,
+      download: false,
+      // TODO
+      downloadText: '',
+      // TODO
+      downloadLabel: 'Download image',
+      // TODO
+      keyboard: true,
+      zoom: true,
+      zoomText: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="16 4 20 4 20 8" /><line x1="14" y1="10" x2="20" y2="4" /><polyline points="8 20 4 20 4 16" /><line x1="4" y1="20" x2="10" y2="14" /><polyline points="16 20 20 20 20 16" /><line x1="14" y1="14" x2="20" y2="20" /><polyline points="8 4 4 4 4 8" /><line x1="4" y1="4" x2="10" y2="10" /></svg>',
+      docClose: true,
+      swipeClose: true,
+      hideScrollbar: true,
+      draggable: true,
+      threshold: 100,
+      rtl: false,
+      // TODO
+      loop: false,
+      // TODO
+      autoplayVideo: false,
+      modal: false,
+      theme: 'tobii--theme-default'
+    };
+    return _extends({}, OPTIONS, userOptions);
+  };
+
+  /**
+   * Init
+   *
+   */
+  const init = userOptions => {
+    if (document.querySelector('div.tobii')) {
+      console.log('Multiple lightbox instances not supported.');
+      return;
+    }
+
+    // Merge user options into defaults
+    userSettings = mergeOptions(userOptions);
+
+    // Check if the lightbox already exists
+    if (!lightbox) {
+      createLightbox();
+    }
+
+    // Get a list of all elements within the document
+    const LIGHTBOX_TRIGGER_ELS = document.querySelectorAll(userSettings.selector);
+    if (!LIGHTBOX_TRIGGER_ELS) {
+      throw new Error(`Ups, I can't find the selector ${userSettings.selector} on this website.`);
+    }
+
+    // Execute a few things once per element
+    const uniqueMap = [];
+    LIGHTBOX_TRIGGER_ELS.forEach(lightboxTriggerEl => {
+      const group = lightboxTriggerEl.hasAttribute('data-group') ? lightboxTriggerEl.getAttribute('data-group') : 'default';
+      let uid = lightboxTriggerEl.href;
+      if (lightboxTriggerEl.hasAttribute('data-target')) {
+        uid = lightboxTriggerEl.getAttribute('data-target');
+      }
+      uid += '__' + group;
+      if (typeof uniqueMap[uid] !== 'undefined') {
+        // duplicate - skip, but still open lightbox on click
+        lightboxTriggerEl.addEventListener('click', event => {
+          selectGroup(group);
+          open();
+          event.preventDefault();
+        });
+      } else {
+        // new element
+        uniqueMap[uid] = 1;
+        checkDependencies(lightboxTriggerEl);
+      }
+    });
+  };
+
+  /**
+   * Check dependencies
+   *
+   * @param {HTMLElement} el - Element to add
+   */
+  const checkDependencies = el => {
+    // Check if there is a YouTube video and if the YouTube iframe-API is ready
+    if (document.querySelector('[data-type="youtube"]') !== null && !isYouTubeDependencyLoaded) {
+      if (document.getElementById('iframe_api') === null) {
+        const TAG = document.createElement('script');
+        const FIRST_SCRIPT_TAG = document.getElementsByTagName('script')[0];
+        TAG.id = 'iframe_api';
+        TAG.src = 'https://www.youtube.com/iframe_api';
+        FIRST_SCRIPT_TAG.parentNode.insertBefore(TAG, FIRST_SCRIPT_TAG);
+      }
+      if (WAITING_ELS.indexOf(el) === -1) {
+        WAITING_ELS.push(el);
+      }
+      window.onYouTubePlayerAPIReady = () => {
+        WAITING_ELS.forEach(waitingEl => {
+          add(waitingEl);
+        });
+        isYouTubeDependencyLoaded = true;
+      };
+    } else {
+      add(el);
+    }
+  };
+
+  /**
+   * Get group name from element
+   *
+   * @param {HTMLElement} el
+   * @return {string}
+   */
+  const getGroupName = el => {
+    return el.hasAttribute('data-group') ? el.getAttribute('data-group') : 'default';
+  };
+
+  /**
+   * Copy an object. (The secure way)
+   *
+   * @param {object} object
+   * @return {object}
+   */
+  const copyObject = object => {
+    return JSON.parse(JSON.stringify(object));
+  };
+
+  /**
+   * Add element
+   *
+   * @param {HTMLElement} el - Element to add
+   */
+  const add = el => {
+    const newGroup = getGroupName(el);
+    if (!Object.prototype.hasOwnProperty.call(groups, newGroup)) {
+      groups[newGroup] = copyObject(GROUP_ATTS);
+
+      // Create slider
+      groups[newGroup].slider = document.createElement('div');
+      groups[newGroup].slider.className = 'tobii__slider';
+
+      // Hide slider
+      groups[newGroup].slider.setAttribute('aria-hidden', 'true');
+      lightbox.appendChild(groups[newGroup].slider);
+    }
+
+    // Check if element already exists
+    if (groups[newGroup].gallery.indexOf(el) === -1) {
+      groups[newGroup].gallery.push(el);
+      groups[newGroup].elementsLength++;
+
+      // Set zoom icon if necessary
+      if (userSettings.zoom && el.querySelector('img') && el.getAttribute('data-zoom') !== 'false' || el.getAttribute('data-zoom') === 'true') {
+        const TOBII_ZOOM = document.createElement('div');
+        TOBII_ZOOM.className = 'tobii-zoom__icon';
+        TOBII_ZOOM.innerHTML = userSettings.zoomText;
+        el.classList.add('tobii-zoom');
+        el.appendChild(TOBII_ZOOM);
+      }
+
+      // Bind click event handler
+      el.addEventListener('click', triggerTobii);
+      const model = getModel(el);
+
+      // Create slide
+      const SLIDER_ELEMENT = document.createElement('div');
+      const SLIDER_ELEMENT_CONTENT = document.createElement('div');
+      SLIDER_ELEMENT.className = 'tobii__slide';
+      SLIDER_ELEMENT.style.position = 'absolute';
+      SLIDER_ELEMENT.style.left = `${groups[newGroup].x * 100}%`;
+
+      // Hide slide
+      SLIDER_ELEMENT.setAttribute('aria-hidden', 'true');
+
+      // Create type elements
+      model.init(el, SLIDER_ELEMENT_CONTENT, userSettings);
+
+      // Add slide content container to slider element
+      SLIDER_ELEMENT.appendChild(SLIDER_ELEMENT_CONTENT);
+
+      // Add slider element to slider
+      groups[newGroup].slider.appendChild(SLIDER_ELEMENT);
+      groups[newGroup].sliderElements.push(SLIDER_ELEMENT);
+      ++groups[newGroup].x;
+      if (isOpen() && newGroup === activeGroup) {
+        updateConfig();
+        updateLightbox();
+      }
+    } else {
+      throw new Error('Ups, element already added.');
+    }
+  };
+
+  /**
+   * Remove element
+   *
+   * @param {HTMLElement} el - Element to remove
+   */
+  const remove = el => {
+    const GROUP_NAME = getGroupName(el);
+
+    // Check if element exists
+    if (groups[GROUP_NAME].gallery.indexOf(el) === -1) {
+      throw new Error(`Ups, I can't find a slide for the element ${el}.`);
+    } else {
+      const SLIDE_INDEX = groups[GROUP_NAME].gallery.indexOf(el);
+      const SLIDE_EL = groups[GROUP_NAME].sliderElements[SLIDE_INDEX];
+
+      // If the element to be removed is the currently visible slide
+      if (isOpen() && GROUP_NAME === activeGroup && SLIDE_INDEX === groups[GROUP_NAME].currentIndex) {
+        if (groups[GROUP_NAME].elementsLength === 1) {
+          close();
+          throw new Error('Ups, I\'ve closed. There are no slides more to show.');
+        } else {
+          // TODO If there is only one slide left, deactivate horizontal dragging/ swiping
+          // TODO Set new absolute position per slide
+
+          // If the first slide is displayed
+          if (groups[GROUP_NAME].currentIndex === 0) {
+            next();
+          } else {
+            previous();
+          }
+          updateConfig();
+          updateLightbox();
+        }
+      }
+      groups[GROUP_NAME].gallery.splice(groups[GROUP_NAME].gallery.indexOf(el));
+      groups[GROUP_NAME].sliderElements.splice(groups[GROUP_NAME].gallery.indexOf(el));
+      groups[GROUP_NAME].elementsLength--;
+      --groups[GROUP_NAME].x;
+
+      // Remove zoom icon if necessary
+      if (userSettings.zoom && el.querySelector('.tobii-zoom__icon')) {
+        const ZOOM_ICON = el.querySelector('.tobii-zoom__icon');
+        ZOOM_ICON.parentNode.classList.remove('tobii-zoom');
+        ZOOM_ICON.parentNode.removeChild(ZOOM_ICON);
+      }
+
+      // Unbind click event handler
+      el.removeEventListener('click', triggerTobii);
+
+      // Remove slide
+      SLIDE_EL.parentNode.removeChild(SLIDE_EL);
+    }
+  };
+
+  /**
+   * Create the lightbox
+   *
+   */
+  const createLightbox = () => {
+    // Create the lightbox container
+    lightbox = document.createElement('div');
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-hidden', 'true');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', 'Lightbox');
+    lightbox.classList.add('tobii');
+
+    // Adc theme class
+    lightbox.classList.add(userSettings.theme);
+
+    // Create the previous button
+    prevButton = document.createElement('button');
+    prevButton.className = 'tobii__btn tobii__btn--previous';
+    prevButton.setAttribute('type', 'button');
+    prevButton.setAttribute('aria-label', userSettings.navLabel[0]);
+    prevButton.innerHTML = userSettings.navText[0];
+    lightbox.appendChild(prevButton);
+
+    // Create the next button
+    nextButton = document.createElement('button');
+    nextButton.className = 'tobii__btn tobii__btn--next';
+    nextButton.setAttribute('type', 'button');
+    nextButton.setAttribute('aria-label', userSettings.navLabel[1]);
+    nextButton.innerHTML = userSettings.navText[1];
+    lightbox.appendChild(nextButton);
+
+    // Create the close button
+    closeButton = document.createElement('button');
+    closeButton.className = 'tobii__btn tobii__btn--close';
+    closeButton.setAttribute('type', 'button');
+    closeButton.setAttribute('aria-label', userSettings.closeLabel);
+    closeButton.innerHTML = userSettings.closeText;
+    lightbox.appendChild(closeButton);
+
+    // Create the counter
+    counter = document.createElement('div');
+    counter.className = 'tobii__counter';
+    lightbox.appendChild(counter);
+    document.body.appendChild(lightbox);
+  };
+  const getModel = el => {
+    const type = el.getAttribute('data-type');
+    if (SUPPORTED_ELEMENTS[type] !== undefined) {
+      return SUPPORTED_ELEMENTS[type];
+    } else {
+      // unknown - use default
+      if (el.hasAttribute('data-type')) {
+        console.log('Unknown lightbox element type: ' + type);
+      }
+      return SUPPORTED_ELEMENTS.image;
+    }
+  };
+
+  /**
+   * Open Tobii
+   *
+   * @param {number} index - Index to load
+   */
+  const open = (index = 0) => {
+    if (isOpen()) {
+      throw new Error('Ups, I\'m aleady open.');
+    }
+    if (index === -1 || index >= groups[activeGroup].elementsLength) {
+      throw new Error(`Ups, I can't find slide ${index}.`);
+    }
+    document.documentElement.classList.add('tobii-is-open');
+    document.body.classList.add('tobii-is-open');
+    document.body.classList.add('tobii-is-open-' + activeGroup);
+    updateConfig();
+
+    // Hide close if necessary
+    if (!userSettings.close) {
+      closeButton.disabled = false;
+      closeButton.setAttribute('aria-hidden', 'true');
+    }
+
+    // Save user’s focus
+    lastFocus = document.activeElement;
+
+    // Use `history.pushState()` to make sure the "Back" button behavior
+    // that aligns with the user's expectations
+    const stateObj = {
+      tobii: 'close'
+    };
+    const url = window.location.href;
+    window.history.pushState(stateObj, 'Image', url);
+
+    // Set current index
+    groups[activeGroup].currentIndex = index;
+    bindEvents();
+
+    // Load slide
+    load(groups[activeGroup].currentIndex);
+
+    // Show slider
+    groups[activeGroup].slider.setAttribute('aria-hidden', 'false');
+
+    // Show lightbox
+    lightbox.setAttribute('aria-hidden', 'false');
+    updateLightbox();
+
+    // Preload previous and next slide
+    preload(groups[activeGroup].currentIndex + 1);
+    preload(groups[activeGroup].currentIndex - 1);
+    groups[activeGroup].slider.classList.add('tobii__slider--animate');
+
+    // Create and dispatch a new event
+    const openEvent = new window.CustomEvent('open', {
+      detail: {
+        group: activeGroup
+      }
+    });
+    lightbox.dispatchEvent(openEvent);
+  };
+
+  /**
+   * Close Tobii
+   *
+   */
+  const close = () => {
+    if (!isOpen()) {
+      throw new Error('Ups, I\'m already closed.');
+    }
+    document.documentElement.classList.remove('tobii-is-open');
+    document.body.classList.remove('tobii-is-open');
+    document.body.classList.remove('tobii-is-open-' + activeGroup);
+    unbindEvents();
+
+    // Remove entry in browser history
+    if (window.history.state !== null) {
+      if (window.history.state.tobii === 'close') {
+        window.history.back();
+      }
+    }
+
+    // Reenable the user’s focus
+    lastFocus.focus();
+
+    // Don't forget to cleanup our current element
+    leave(groups[activeGroup].currentIndex);
+    cleanup(groups[activeGroup].currentIndex);
+
+    // Hide lightbox
+    lightbox.setAttribute('aria-hidden', 'true');
+
+    // Hide slider
+    groups[activeGroup].slider.setAttribute('aria-hidden', 'true');
+
+    // Reset current index
+    groups[activeGroup].currentIndex = 0;
+
+    // Remove the hack to prevent animation during opening
+    groups[activeGroup].slider.classList.remove('tobii__slider--animate');
+
+    // Create and dispatch a new event
+    const closeEvent = new window.CustomEvent('close', {
+      detail: {
+        group: activeGroup
+      }
+    });
+    lightbox.dispatchEvent(closeEvent);
+  };
+
+  /**
+   * Preload slide
+   *
+   * @param {number} index - Index to preload
+   */
+  const preload = index => {
+    if (groups[activeGroup].sliderElements[index] === undefined) {
+      return;
+    }
+    const CONTAINER = groups[activeGroup].sliderElements[index].querySelector('[data-type]');
+    const model = getModel(CONTAINER);
+    model.onPreload(CONTAINER);
+  };
+
+  /**
+   * Load slide
+   * Will be called when opening the lightbox or moving index
+   *
+   * @param {number} index - Index to load
+   */
+  const load = index => {
+    if (groups[activeGroup].sliderElements[index] === undefined) {
+      return;
+    }
+    const CONTAINER = groups[activeGroup].sliderElements[index].querySelector('[data-type]');
+    const model = getModel(CONTAINER);
+
+    // Add active slide class
+    groups[activeGroup].sliderElements[index].classList.add('tobii__slide--is-active');
+    groups[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'false');
+    model.onLoad(CONTAINER, activeGroup);
+  };
+
+  /**
+   * Select a slide
+   *
+   * @param {number} index - Index to select
+   */
+  const select = index => {
+    const currIndex = groups[activeGroup].currentIndex;
+    if (!isOpen()) {
+      throw new Error('Ups, I\'m closed.');
+    }
+    if (isOpen()) {
+      if (!index && index !== 0) {
+        throw new Error('Ups, no slide specified.');
+      }
+      if (index === groups[activeGroup].currentIndex) {
+        throw new Error(`Ups, slide ${index} is already selected.`);
+      }
+      if (index === -1 || index >= groups[activeGroup].elementsLength) {
+        throw new Error(`Ups, I can't find slide ${index}.`);
+      }
+    }
+
+    // Set current index
+    groups[activeGroup].currentIndex = index;
+    leave(currIndex);
+    load(index);
+    if (index < currIndex) {
+      updateLightbox('left');
+      cleanup(currIndex);
+      preload(index - 1);
+    }
+    if (index > currIndex) {
+      updateLightbox('right');
+      cleanup(currIndex);
+      preload(index + 1);
+    }
+  };
+
+  /**
+   * Select the previous slide
+   *
+   */
+  const previous = () => {
+    if (!isOpen()) {
+      throw new Error('Ups, I\'m closed.');
+    }
+    if (groups[activeGroup].currentIndex > 0) {
+      leave(groups[activeGroup].currentIndex);
+      load(--groups[activeGroup].currentIndex);
+      updateLightbox('left');
+      cleanup(groups[activeGroup].currentIndex + 1);
+      preload(groups[activeGroup].currentIndex - 1);
+    }
+
+    // Create and dispatch a new event
+    const previousEvent = new window.CustomEvent('previous', {
+      detail: {
+        group: activeGroup
+      }
+    });
+    lightbox.dispatchEvent(previousEvent);
+  };
+
+  /**
+   * Select the next slide
+   *
+   */
+  const next = () => {
+    if (!isOpen()) {
+      throw new Error('Ups, I\'m closed.');
+    }
+    if (groups[activeGroup].currentIndex < groups[activeGroup].elementsLength - 1) {
+      leave(groups[activeGroup].currentIndex);
+      load(++groups[activeGroup].currentIndex);
+      updateLightbox('right');
+      cleanup(groups[activeGroup].currentIndex - 1);
+      preload(groups[activeGroup].currentIndex + 1);
+    }
+
+    // Create and dispatch a new event
+    const nextEvent = new window.CustomEvent('next', {
+      detail: {
+        group: activeGroup
+      }
+    });
+    lightbox.dispatchEvent(nextEvent);
+  };
+
+  /**
+   * Select a group
+   *
+   * @param {string} name - Name of the group to select
+   */
+  const selectGroup = name => {
+    if (isOpen()) {
+      throw new Error('Ups, I\'m open.');
+    }
+    if (!name) {
+      throw new Error('Ups, no group specified.');
+    }
+    if (name && !Object.prototype.hasOwnProperty.call(groups, name)) {
+      throw new Error(`Ups, I don't have a group called "${name}".`);
+    }
+    activeGroup = name;
+  };
+
+  /**
+   * Leave slide
+   * Will be called before moving index
+   *
+   * @param {number} index - Index to leave
+   */
+  const leave = index => {
+    if (groups[activeGroup].sliderElements[index] === undefined) {
+      return;
+    }
+    const CONTAINER = groups[activeGroup].sliderElements[index].querySelector('[data-type]');
+    const model = getModel(CONTAINER);
+
+    // Remove active slide class
+    groups[activeGroup].sliderElements[index].classList.remove('tobii__slide--is-active');
+    groups[activeGroup].sliderElements[index].setAttribute('aria-hidden', 'true');
+    model.onLeave(CONTAINER);
+  };
+
+  /**
+   * Cleanup slide
+   * Will be called after moving index
+   *
+   * @param {number} index - Index to cleanup
+   */
+  const cleanup = index => {
+    if (groups[activeGroup].sliderElements[index] === undefined) {
+      return;
+    }
+    const CONTAINER = groups[activeGroup].sliderElements[index].querySelector('[data-type]');
+    const model = getModel(CONTAINER);
+    model.onCleanup(CONTAINER);
+    DRAG.startX = 0;
+    DRAG.startY = 0;
+    DRAG.x = 0;
+    DRAG.y = 0;
+    DRAG.distance = 0;
+    lastTapTime = 0;
+    if (isZoomed()) resetZoom();
+    TRANSFORM.element = null;
+  };
+
+  /**
+   * Update offset
+   *
+   */
+  const updateOffset = () => {
+    offset = -groups[activeGroup].currentIndex * lightbox.offsetWidth;
+    groups[activeGroup].slider.style.transform = `translate(${offset}px, 0)`;
+  };
+
+  /**
+   * Update counter
+   *
+   */
+  const updateCounter = () => {
+    counter.textContent = `${groups[activeGroup].currentIndex + 1}/${groups[activeGroup].elementsLength}`;
+  };
+
+  /**
+   * Update focus
+   *
+   * @param {string|null} dir - Current slide direction
+   */
+  const updateFocus = dir => {
+    if ((userSettings.nav === true || userSettings.nav === 'auto') && !isTouchDevice() && groups[activeGroup].elementsLength > 1) {
+      prevButton.setAttribute('aria-hidden', 'true');
+      prevButton.disabled = true;
+      nextButton.setAttribute('aria-hidden', 'true');
+      nextButton.disabled = true;
+
+      // If there is only one slide
+      if (groups[activeGroup].elementsLength === 1) {
+        if (userSettings.close) {
+          closeButton.focus();
+        }
+      } else {
+        // If the first slide is displayed
+        if (groups[activeGroup].currentIndex === 0) {
+          nextButton.setAttribute('aria-hidden', 'false');
+          nextButton.disabled = false;
+          nextButton.focus();
+
+          // If the last slide is displayed
+        } else if (groups[activeGroup].currentIndex === groups[activeGroup].elementsLength - 1) {
+          prevButton.setAttribute('aria-hidden', 'false');
+          prevButton.disabled = false;
+          prevButton.focus();
+        } else {
+          prevButton.setAttribute('aria-hidden', 'false');
+          prevButton.disabled = false;
+          nextButton.setAttribute('aria-hidden', 'false');
+          nextButton.disabled = false;
+          if (dir === 'left') {
+            prevButton.focus();
+          } else {
+            nextButton.focus();
+          }
+        }
+      }
+    } else if (userSettings.close) {
+      closeButton.focus();
+    }
+    // If there is a focusable figure element, and we are not displaying the first slide.
+    if (groups[activeGroup].elementsLength > 1 && groups[activeGroup].currentIndex !== 0) {
+      const FOCUSABLE_FIGURE = getFocusableFigure();
+      if (FOCUSABLE_FIGURE) {
+        // The small delay is required to avoid an annoying display bug.
+        setTimeout(() => {
+          FOCUSABLE_FIGURE.focus();
+        }, 100);
+      }
+    }
+  };
+
+  /**
+   * Resize event
+   *
+   */
+  const resizeHandler = () => {
+    updateOffset();
+  };
+
+  /**
+   * Click event handler to trigger Tobii
+   *
+   */
+  const triggerTobii = event => {
+    event.preventDefault();
+    activeGroup = getGroupName(event.currentTarget);
+    open(groups[activeGroup].gallery.indexOf(event.currentTarget));
+  };
+
+  /**
+   * Click event handler
+   *
+   */
+  const clickHandler = event => {
+    if (event.target === prevButton) {
+      previous();
+    } else if (event.target === nextButton) {
+      next();
+    } else if (event.target === closeButton || event.target.classList.contains('tobii__slide') && userSettings.docClose) {
+      close();
+    }
+    event.stopPropagation();
+  };
+
+  /**
+   * Get the focusable children of the given element
+   *
+   * @return {Array<Element>}
+   */
+  const getFocusableChildren = () => {
+    return Array.prototype.slice.call(lightbox.querySelectorAll(`.tobii__btn:not([disabled]), .tobii__slide--is-active ${FOCUSABLE_ELEMENTS.join(', .tobii__slide--is-active ')}`)).filter(child => {
+      return !!(child.offsetWidth || child.offsetHeight || child.getClientRects().length);
+    });
+  };
+
+  /**
+   * Get the programmatically focusable figure of the given element
+   *
+   * @return {Element|null}
+   */
+  const getFocusableFigure = () => {
+    return lightbox.querySelector('.tobii__slide--is-active figure[tabindex="-1"]');
+  };
+
+  /**
+   * Keydown event handler
+   *
+   * @TODO: Remove the deprecated event.keyCode when Edge support event.code and we drop f*cking IE
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
+   */
+  const keydownHandler = event => {
+    const FOCUSABLE_CHILDREN = getFocusableChildren();
+    const FOCUSED_ITEM_INDEX = FOCUSABLE_CHILDREN.indexOf(document.activeElement);
+    if (event.keyCode === 9 || event.code === 'Tab') {
+      // If the SHIFT key is being pressed while tabbing (moving backwards) and
+      // the currently focused item is the first one, move the focus to the last
+      // focusable item from the slide
+      if (event.shiftKey && FOCUSED_ITEM_INDEX === 0) {
+        FOCUSABLE_CHILDREN[FOCUSABLE_CHILDREN.length - 1].focus();
+        event.preventDefault();
+        // If the SHIFT key is not being pressed (moving forwards) and the currently
+        // focused item is the last one, move the focus to the first focusable item
+        // from the slide
+      } else if (!event.shiftKey && (FOCUSED_ITEM_INDEX === FOCUSABLE_CHILDREN.length - 1 || FOCUSED_ITEM_INDEX === -1)) {
+        FOCUSABLE_CHILDREN[0].focus();
+        event.preventDefault();
+      }
+    } else if (event.keyCode === 27 || event.code === 'Escape') {
+      // `ESC` Key: Close Tobii
+      event.preventDefault();
+      close();
+    } else if (event.keyCode === 37 || event.code === 'ArrowLeft') {
+      // `PREV` Key: Show the previous slide
+      event.preventDefault();
+      previous();
+    } else if (event.keyCode === 39 || event.code === 'ArrowRight') {
+      // `NEXT` Key: Show the next slide
+      event.preventDefault();
+      next();
+    }
+  };
+
+  /**
+   * Contextmenu event handler
+   * This is a fix for chromium based browser on mac.
+   * The 'contextmenu' terminates a mouse event sequence.
+   * https://bugs.chromium.org/p/chromium/issues/detail?id=506801
+   *
+   */
+  const contextmenuHandler = () => {
+    pointerDownCache = [];
+    updateOffset();
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'));
+  };
+
+  /**
+   * Pointerdown event handler
+   *
+   */
+  const pointerdownHandler = event => {
+    // Prevent dragging / swiping on textareas, inputs and selects
+    if (isIgnoreElement(event.target)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    DRAG.startX = DRAG.x = event.clientX;
+    DRAG.startY = DRAG.y = event.clientY;
+    DRAG.distance = 0;
+
+    // This event is cached to support 2-finger gestures
+    pointerDownCache.push(event);
+    if (pointerDownCache.length === 2) {
+      const {
+        x,
+        y
+      } = midPoint(pointerDownCache[0].clientX, pointerDownCache[0].clientY, pointerDownCache[1].clientX, pointerDownCache[1].clientY);
+      DRAG.startX = DRAG.x = x;
+      DRAG.startY = DRAG.y = y;
+      DRAG.distance = distance(pointerDownCache[0].clientX - pointerDownCache[1].clientX, pointerDownCache[0].clientY - pointerDownCache[1].clientY) / TRANSFORM.scale;
+    }
+  };
+
+  /**
+   * Pointermove event handler
+   *
+   */
+  const pointermoveHandler = event => {
+    if (!pointerDownCache.length) return;
+    groups[activeGroup].slider.classList.add('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'));
+
+    // Find this event in the cache and update its record with this event
+    const index = pointerDownCache.findIndex(cachedEv => cachedEv.pointerId === event.pointerId);
+    pointerDownCache[index] = event;
+    if (pointerDownCache.length === 2) {
+      // 2-pointer horizontal pinch/zoom gesture
+      const {
+        x,
+        y
+      } = midPoint(pointerDownCache[0].clientX, pointerDownCache[0].clientY, pointerDownCache[1].clientX, pointerDownCache[1].clientY);
+      const scale = distance(pointerDownCache[0].clientX - pointerDownCache[1].clientX, pointerDownCache[0].clientY - pointerDownCache[1].clientY) / DRAG.distance;
+      zoomPan(clamp(scale, MIN_SCALE, MAX_SCALE), x, y, x - DRAG.x, y - DRAG.y);
+      DRAG.x = x;
+      DRAG.y = y;
+      return;
+    }
+    if (isZoomed()) {
+      const deltaX = event.clientX - DRAG.x;
+      const deltaY = event.clientY - DRAG.y;
+      pan(deltaX, deltaY);
+    }
+    DRAG.x = event.clientX;
+    DRAG.y = event.clientY;
+    if (!isZoomed()) {
+      // Drag animation
+      const deltaX = DRAG.startX - DRAG.x;
+      const deltaY = DRAG.startY - DRAG.y;
+
+      // Skip animation if drag distance is too low
+      if (distance(deltaX, deltaY) < 10) return;
+      if (Math.abs(deltaX) > Math.abs(deltaY) && groups[activeGroup].elementsLength > 1) {
+        // Horizontal swipe
+        groups[activeGroup].slider.style.transform = `translate(${offset - Math.round(deltaX)}px, 0)`;
+      } else if (userSettings.swipeClose) {
+        // Vertical swipe
+        groups[activeGroup].slider.style.transform = `translate(${offset}px, -${Math.round(deltaY)}px)`;
+      }
+    }
+  };
+
+  /**
+   * Pointerup event handler
+   *
+   */
+  const pointerupHandler = event => {
+    // Intercept regular click handler
+    if (!pointerDownCache.length) return;
+    groups[activeGroup].slider.classList.remove('tobii__slider--is-' + (isZoomed() ? 'moving' : 'dragging'));
+
+    // Remove this event from the target's cache
+    const index = pointerDownCache.findIndex(cachedEv => cachedEv.pointerId === event.pointerId);
+    pointerDownCache.splice(index, 1);
+    const x = event.clientX;
+    const y = event.clientY;
+    const deltaX = DRAG.startX - x;
+    const deltaY = DRAG.startY - y;
+    const distanceX = Math.abs(deltaX);
+    const distanceY = Math.abs(deltaY);
+    if (distanceX || distanceY) {
+      if (!isZoomed()) {
+        // Evaluate drag
+        if (deltaX < 0 && distanceX > userSettings.threshold && groups[activeGroup].currentIndex > 0) {
+          previous();
+        } else if (deltaX > 0 && distanceX > userSettings.threshold && groups[activeGroup].currentIndex !== groups[activeGroup].elementsLength - 1) {
+          next();
+        } else if (deltaY > 0 && distanceY > userSettings.threshold && userSettings.swipeClose) {
+          close();
+        } else {
+          updateOffset();
+        }
+      }
+    } else {
+      // Evaluate tap
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTapTime;
+      if (tapLength < DOUBLE_TAP_TIME && tapLength > 100) {
+        // Double click
+        event.preventDefault();
+        lastTapTime = 0;
+        if (isZoomed()) {
+          resetZoom();
+        } else {
+          zoomPan(MAX_SCALE / 2, x, y, 0, 0);
+        }
+      } else {
+        lastTapTime = currentTime;
+        if (isTouchDevice()) {
+          // Delayed tap on mobile
+          window.setTimeout(() => {
+            const {
+              left,
+              top,
+              bottom,
+              right,
+              width
+            } = event.target.getBoundingClientRect();
+            if (y < top || y > bottom || !lastTapTime) return;
+            if (x > left && x < left + width / 2) {
+              previous();
+            } else if (x < right && x > right - width / 2) {
+              next();
+            }
+          }, DOUBLE_TAP_TIME);
+        }
+      }
+    }
+  };
+
+  /**
+   * Wheel event handler
+   *
+   */
+  const wheelHandler = event => {
+    const deltaScale = Math.sign(event.deltaY) > 0 ? -1 : 1;
+    if (!isZoomed() && !deltaScale) return;
+    event.preventDefault();
+    const newScale = TRANSFORM.scale + deltaScale / (SCALE_SENSITIVITY / TRANSFORM.scale);
+    zoomPan(clamp(newScale, MIN_SCALE, MAX_SCALE), event.clientX, event.clientY, 0, 0);
+  };
+  const clampedTranslate = (axis, translate) => {
+    // Whole clamping functionality heavily inspired
+    // by https://github.com/Neophen/pinch-zoom-pan
+    const {
+      element,
+      scale,
+      originX,
+      originY
+    } = TRANSFORM;
+    const axisIsX = axis === 'x';
+    const origin = axisIsX ? originX : originY;
+    const axisKey = axisIsX ? 'offsetWidth' : 'offsetHeight';
+    const containerSize = element.parentNode[axisKey];
+    const imageSize = element[axisKey];
+    const bounds = element.getBoundingClientRect();
+    const imageScaledSize = axisIsX ? bounds.width : bounds.height;
+    const defaultOrigin = imageSize / 2;
+    const originOffset = (origin - defaultOrigin) * (scale - 1);
+    const range = Math.max(0, Math.round(imageScaledSize) - containerSize);
+    const max = Math.round(range / 2);
+    const min = 0 - max;
+    return clamp(translate, min + originOffset, max + originOffset);
+  };
+  const clamp = (value, min, max) => Math.max(Math.min(value, max), min);
+  const isZoomed = () => TRANSFORM.scale !== MIN_SCALE;
+  const pan = (deltaX, deltaY) => {
+    if (deltaX !== 0) {
+      TRANSFORM.translateX = clampedTranslate('x', TRANSFORM.translateX + deltaX);
+    }
+    if (deltaY !== 0) {
+      TRANSFORM.translateY = clampedTranslate('y', TRANSFORM.translateY + deltaY);
+    }
+    const {
+      element,
+      originX,
+      originY,
+      translateX,
+      translateY,
+      scale
+    } = TRANSFORM;
+    element.style.transformOrigin = `${originX}px ${originY}px`;
+    element.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  };
+  const zoomPan = (newScale, x, y, deltaX, deltaY) => {
+    if (!TRANSFORM.element) {
+      TRANSFORM.element = lightbox.querySelector('.tobii__slide--is-active img');
+    }
+    const {
+      left,
+      top
+    } = TRANSFORM.element.getBoundingClientRect();
+    const originX = x - left;
+    const originY = y - top;
+    const newOriginX = originX / TRANSFORM.scale;
+    const newOriginY = originY / TRANSFORM.scale;
+    TRANSFORM.originX = newOriginX;
+    TRANSFORM.originY = newOriginY;
+    TRANSFORM.scale = newScale;
+    pan(deltaX, deltaY);
+  };
+  const distance = (dx, dy) => Math.hypot(dx, dy);
+  const midPoint = (x1, y1, x2, y2) => ({
+    x: (x1 + x2) / 2,
+    y: (y1 + y2) / 2
+  });
+  const resetZoom = () => {
+    TRANSFORM.scale = MIN_SCALE;
+    TRANSFORM.originX = 0;
+    TRANSFORM.originY = 0;
+    TRANSFORM.translateX = 0;
+    TRANSFORM.translateY = 0;
+    pan(0, 0);
+  };
+
+  /**
+   * Bind events
+   *
+   */
+  const bindEvents = () => {
+    if (userSettings.keyboard) {
+      window.addEventListener('keydown', keydownHandler);
+    }
+
+    // Resize event
+    window.addEventListener('resize', resizeHandler);
+
+    // Popstate event
+    window.addEventListener('popstate', close);
+
+    // Click event
+    on('click', clickHandler);
+    if (userSettings.draggable) {
+      // Pointer events
+      on('pointerdown', pointerdownHandler);
+      on('pointermove', pointermoveHandler);
+      on('pointerup', pointerupHandler);
+      on('pointercancel', contextmenuHandler);
+      on('pointerout', contextmenuHandler);
+      on('pointerleave', contextmenuHandler);
+      on('contextmenu', contextmenuHandler);
+    }
+
+    // Wheel event
+    on('wheel', wheelHandler);
+  };
+
+  /**
+   * Unbind events
+   *
+   */
+  const unbindEvents = () => {
+    if (userSettings.keyboard) {
+      window.removeEventListener('keydown', keydownHandler);
+    }
+
+    // Resize event
+    window.removeEventListener('resize', resizeHandler);
+
+    // Popstate event
+    window.removeEventListener('popstate', close);
+
+    // Click event
+    off('click', clickHandler);
+    if (userSettings.draggable) {
+      // Pointer events
+      off('pointerdown', pointerdownHandler);
+      off('pointermove', pointermoveHandler);
+      off('pointerup', pointerupHandler);
+      off('pointercancel', contextmenuHandler);
+      off('pointerout', contextmenuHandler);
+      off('pointerleave', contextmenuHandler);
+      off('contextmenu', contextmenuHandler);
+    }
+
+    // Wheel event
+    off('wheel', wheelHandler);
+  };
+
+  /**
+   * Update userSettings
+   *
+   */
+  const updateConfig = () => {
+    if (userSettings.draggable && !groups[activeGroup].slider.classList.contains('tobii__slider--is-draggable')) {
+      groups[activeGroup].slider.classList.add('tobii__slider--is-draggable');
+    }
+
+    // Hide buttons if necessary
+    if (!userSettings.nav || groups[activeGroup].elementsLength === 1 || userSettings.nav === 'auto' && isTouchDevice()) {
+      prevButton.setAttribute('aria-hidden', 'true');
+      prevButton.disabled = true;
+      nextButton.setAttribute('aria-hidden', 'true');
+      nextButton.disabled = true;
+    } else {
+      prevButton.setAttribute('aria-hidden', 'false');
+      prevButton.disabled = false;
+      nextButton.setAttribute('aria-hidden', 'false');
+      nextButton.disabled = false;
+    }
+
+    // Hide counter if necessary
+    if (!userSettings.counter || groups[activeGroup].elementsLength === 1) {
+      counter.setAttribute('aria-hidden', 'true');
+    } else {
+      counter.setAttribute('aria-hidden', 'false');
+    }
+  };
+
+  /**
+   * Update lightbox
+   *
+   * @param {string|null} dir - Current slide direction
+   */
+  const updateLightbox = (dir = null) => {
+    updateOffset();
+    updateCounter();
+    updateFocus(dir);
+  };
+
+  /**
+   * Reset Tobii
+   *
+   */
+  const reset = () => {
+    if (isOpen()) {
+      close();
+    }
+
+    // TODO Cleanup
+    const GROUPS_ENTRIES = Object.entries(groups);
+    GROUPS_ENTRIES.forEach(groupsEntrie => {
+      const SLIDE_ELS = groupsEntrie[1].gallery;
+
+      // Remove slides
+      SLIDE_ELS.forEach(slideEl => {
+        remove(slideEl);
+      });
+    });
+    groups = {};
+    activeGroup = null;
+    for (const i in SUPPORTED_ELEMENTS) {
+      SUPPORTED_ELEMENTS[i].onReset();
+    }
+
+    // TODO
+  };
+
+  /**
+   * Destroy Tobii
+   *
+   */
+  const destroy = () => {
+    reset();
+    lightbox.parentNode.removeChild(lightbox);
+  };
+
+  /**
+   * Check if Tobii is open
+   *
+   */
+  const isOpen = () => {
+    return lightbox.getAttribute('aria-hidden') === 'false';
+  };
+
+  /**
+   * Detect whether device is touch capable
+   *
+   */
+  const isTouchDevice = () => {
+    return 'ontouchstart' in window;
+  };
+
+  /**
+   * Checks whether element's nodeName is part of array
+   *
+   */
+  const isIgnoreElement = el => {
+    return ['TEXTAREA', 'OPTION', 'INPUT', 'SELECT'].indexOf(el.nodeName) !== -1 || el === prevButton || el === nextButton || el === closeButton;
+  };
+
+  /**
+   * Return current index
+   *
+   */
+  const slidesIndex = () => {
+    return groups[activeGroup].currentIndex;
+  };
+
+  /**
+   * Return elements length
+   *
+   */
+  const slidesCount = () => {
+    return groups[activeGroup].elementsLength;
+  };
+
+  /**
+   * Return current group
+   *
+   */
+  const currentGroup = () => {
+    return activeGroup;
+  };
+
+  /**
+   * Bind events
+   * @param {String} eventName
+   * @param {function} callback - callback to call
+   *
+   */
+  const on = (eventName, callback) => {
+    lightbox.addEventListener(eventName, callback);
+  };
+
+  /**
+   * Unbind events
+   * @param {String} eventName
+   * @param {function} callback - callback to call
+   *
+   */
+  const off = (eventName, callback) => {
+    lightbox.removeEventListener(eventName, callback);
+  };
+  init(userOptions);
+  Tobii.open = open;
+  Tobii.previous = previous;
+  Tobii.next = next;
+  Tobii.close = close;
+  Tobii.add = checkDependencies;
+  Tobii.remove = remove;
+  Tobii.reset = reset;
+  Tobii.destroy = destroy;
+  Tobii.isOpen = isOpen;
+  Tobii.slidesIndex = slidesIndex;
+  Tobii.select = select;
+  Tobii.slidesCount = slidesCount;
+  Tobii.selectGroup = selectGroup;
+  Tobii.currentGroup = currentGroup;
+  Tobii.on = on;
+  Tobii.off = off;
+  return Tobii;
+}
+
+export { Tobii as default };

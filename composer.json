@@ -1,0 +1,10 @@
+{
+    "name": "mably/tobii",
+    "description": "Mirror of the tobii javascript library tagged as a Drupal library.",
+    "type": "drupal-library",
+    "homepage": "https://github.com/midzer/tobii",
+    "license": "MIT",
+    "extra": {
+        "installer-name": "tobii"
+    }
+}

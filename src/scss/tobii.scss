@@ -316,6 +316,10 @@ body.tobii-is-open {
   &[aria-hidden='true'] {
     display: none;
   }
+
+  & p {
+    display: inline;
+  }
 }
 
 /**

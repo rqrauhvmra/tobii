@@ -273,6 +273,7 @@ The following options are available:
 | close | bool | true | Display close button. |
 | closeText | string | "inline svg" | Text or HTML for the close button. |
 | closeLabel | string | "Close" | ARIA label for screen readers. |
+| dialogTitle | string | "Lightbox" | ARIA label for screen readers. |
 | loadingIndicatorLabel | string | "Image loading" | ARIA label for screen readers. |
 | counter | bool | true | Display current image index. |
 | keyboard | bool | true | Allow keyboard navigation. |

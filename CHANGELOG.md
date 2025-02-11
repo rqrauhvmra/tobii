@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.7.2
+
+### Fixed
+
+- Encapsulate counter text in P element for better accessibility compliance
+- Add new dialogTitle setting to allow dialog title customization for better accessibility compliance
+- Revert "fix not clickable close() region for slider"
+
 ## v2.7.1
 
 ### Fixed

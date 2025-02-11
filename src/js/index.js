@@ -769,7 +769,7 @@ export default function Tobii (userOptions) {
    *
    */
   const updateCounter = () => {
-    counter.textContent = `${groups[activeGroup].currentIndex + 1}/${groups[activeGroup].elementsLength}`
+    counter.innerHTML = `<p>${groups[activeGroup].currentIndex + 1}/${groups[activeGroup].elementsLength}</p>`
   }
 
   /**

@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.7.3
+
+### Fixed
+
+- fix unclickable top region for docClose
+
 ## v2.7.2
 
 ### Fixed
